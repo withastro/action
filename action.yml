@@ -13,6 +13,10 @@ inputs:
     description: "If not automatically detectable, you may specify your preferred package manager"
     required: false
     default: ""
+outputs:
+  package-manager:
+    description: "detected package manager"
+    value: ${{ steps.lockfile.outputs.package-manager }}
 
 runs:
   using: composite
@@ -25,13 +29,13 @@ runs:
       run: |
         len=`echo $INPUT_PM | wc -c`
         if [ $len -gt 1 ]; then
-            echo "'::set-output name=PACKAGE_MANAGER::$INPUT_PM'"
+            echo "'::set-output name=package-manager::$INPUT_PM'"
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then 
-            echo "'::set-output name=PACKAGE_MANAGER::pnpm'"
+            echo "'::set-output name=package-manager::pnpm'"
         elif [ $(find "." -name "yarn.lock") ]; then 
-            echo "'::set-output name=PACKAGE_MANAGER::yarn'"
+            echo "'::set-output name=package-manager::yarn'"
         elif [ $(find "." -name "package-lock.json") ]; then 
-            echo "'::set-output name=PACKAGE_MANAGER::npm'"
+            echo "'::set-output name=package-manager::npm'"
         else
             echo "No lockfile found.
         Please specify your preferred \"package-manager\" in the action configuration."
@@ -39,22 +43,22 @@ runs:
         fi
 
     - name: Setup PNPM
-      if: ${{ steps.lockfile.output.pm == 'pnpm' }}
+      if: ${{ outputs.package-manager.value == 'pnpm' }}
       uses: pnpm/action-setup@v2.2.2
 
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
-        cache: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }}
+        cache: ${{ outputs.package-manager.value }}
 
     - name: Install
       shell: "bash"
-      run: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }} install
+      run: ${{ outputs.package-manager.value }} install
 
     - name: Build
       shell: "bash"
-      run: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }} run build
+      run: ${{ outputs.package-manager.value }} run build
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v1
