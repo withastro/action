@@ -3,37 +3,57 @@ description: "A composite action that prepares your Astro site to be deployed to
 inputs:
   path:
     description: "Path of the directory containing your site"
-    required: true
+    required: false
     default: ""
   node-version:
     description: "The node version to use"
-    required: true
+    required: false
     default: "16"
   package-manager:
-    description: "The package manager that installs, builds and deploys"
-    required: true
-    default: "npm"
+    description: "If not automatically detectable, you may specify your preferred package manager"
+    required: false
+    default: ""
 
 runs:
   using: composite
   steps:
+    - name: Check lockfiles
+      id: check
+      shell: "bash"
+      env:
+        INPUT_PM: ${{ inputs.package-manager }}
+      run: |
+        if [ $(echo $INPUT_PM) ]; then
+            echo "'::set-output name=pm::$INPUT_PM'"
+        elif [ $(find "." -name "pnpm-lock.yaml") ]; then 
+            echo "'::set-output name=pm::pnpm'"
+        elif [ $(find "." -name "yarn.lock") ]; then 
+            echo "'::set-output name=pm::yarn'"
+        elif [ $(find "." -name "package-lock.json") ]; then 
+            echo "'::set-output name=pm::npm'"
+        else
+            echo "No lockfile found.
+        Please specify your preferred \"package-manager\" in the action configuration."
+            exit 1
+        fi
+
     - name: Setup PNPM
-      if: ${{ inputs.package-manager == 'pnpm' }}
+      if: ${{ steps.check.outputs.pm == 'pnpm' }}
       uses: pnpm/action-setup@v2.2.2
 
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
-        cache: ${{ inputs.package-manager }}
+        cache: ${{ steps.check.outputs.pm }}
 
     - name: Install
       shell: "bash"
-      run: ${{ inputs.package-manager }} install
+      run: ${{ steps.check.outputs.pm }} install
 
     - name: Build
       shell: "bash"
-      run: ${{ inputs.package-manager }} run build
+      run: ${{ steps.check.outputs.pm }} run build
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v1
