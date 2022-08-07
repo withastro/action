@@ -6,9 +6,9 @@ This action for [Astro](https://github.com/withastro/astro) builds your Astro pr
 
 ### Inputs
 
-- `path` - The root location of your Astro project inside the repository. Defaults to `/`.
-- `node-version` - The specific version of Node that should be used to build your site. Defaults to `16`.
-- `package-manager` - The Node package manager that should be used to install dependencies and build your site. Defaults to `npm`.
+- `path` - Optional: the root location of your Astro project inside the repository. Defaults to `/`.
+- `node-version` - Optional: the specific version of Node that should be used to build your site. Defaults to `16`.
+- `package-manager` - Optional: the Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile.
 
 ### Example workflow:
 
