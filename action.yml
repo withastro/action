@@ -1,0 +1,41 @@
+name: "Astro Deploy"
+description: "A composite action that prepares your Astro site to be deployed to GitHub Pages"
+inputs:
+  path:
+    description: "Path of the directory containing your site"
+    required: true
+    default: ""
+  node-version:
+    description: "The node version to use"
+    required: true
+    default: "16"
+  package-manager:
+    description: "The package manager that installs, builds and deploys"
+    required: true
+    default: "npm"
+
+runs:
+  using: composite
+  steps:
+    - name: Setup PNPM
+      if: ${{ inputs.package-manager == 'pnpm' }}
+      uses: pnpm/action-setup@v2.2.2
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: ${{ inputs.package-manager }}
+
+    - name: Install
+      shell: "bash"
+      run: ${{ inputs.package-manager }} install
+
+    - name: Build
+      shell: "bash"
+      run: ${{ inputs.package-manager }} run build
+
+    - name: Upload Pages Artifact
+      uses: actions/upload-pages-artifact@v1
+      with:
+        path: "${{ inputs.path }}dist/"
