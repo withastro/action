@@ -25,13 +25,17 @@ runs:
       run: |
         len=`echo $INPUT_PM | wc -c`
         if [ $len -gt 1 ]; then
-            echo "'::set-output name=PACKAGE_MANAGER::$INPUT_PM'"
-        elif [ $(find "." -name "pnpm-lock.yaml") ]; then 
-            echo "'::set-output name=PACKAGE_MANAGER::pnpm'"
+            echo "::set-output name=PACKAGE_MANAGER::$INPUT_PM"
+            echo "node_pm=$INPUT_PM" >> $GITHUB_ENV
+        elif [ $(find "." -name "pnpm-lock.yaml") ]; then
+            echo "::set-output name=PACKAGE_MANAGER::pnpm"
+            echo "node_pm=pnpm" >> $GITHUB_ENV
         elif [ $(find "." -name "yarn.lock") ]; then 
-            echo "'::set-output name=PACKAGE_MANAGER::yarn'"
+            echo "::set-output name=PACKAGE_MANAGER::yarn"
+            echo "node_pm=yarn" >> $GITHUB_ENV
         elif [ $(find "." -name "package-lock.json") ]; then 
-            echo "'::set-output name=PACKAGE_MANAGER::npm'"
+            echo "::set-output name=PACKAGE_MANAGER::npm"
+            echo "node_pm=npm" >> $GITHUB_ENV
         else
             echo "No lockfile found.
         Please specify your preferred \"package-manager\" in the action configuration."
@@ -39,7 +43,7 @@ runs:
         fi
 
     - name: Setup PNPM
-      if: ${{ steps.lockfile.output.pm == 'pnpm' }}
+      if: ${{ steps.lockfile.outputs.pm == 'pnpm' }}
       uses: pnpm/action-setup@v2.2.2
 
     - name: Setup Node
@@ -50,15 +54,13 @@ runs:
 
     - name: Install
       shell: "bash"
-      env:
-        PACKAGE_MANAGER: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }}
-      run: $PACKAGE_MANAGER install
+      run: $node_pm install
 
     - name: Build
       shell: "bash"
       env:
         PACKAGE_MANAGER: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }}
-      run: $PACKAGE_MANAGER run build
+      run: $node_pm run build
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v1
