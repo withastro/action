@@ -23,7 +23,8 @@ runs:
       env:
         INPUT_PM: ${{ inputs.package-manager }}
       run: |
-        if [ $(echo $INPUT_PM) != "" ]; then
+        len=`echo $INPUT_PM | wc -c`
+        if [ $len -gt 1 ]; then
             echo "'::set-output name=pm::$INPUT_PM'"
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then 
             echo "'::set-output name=pm::pnpm'"
