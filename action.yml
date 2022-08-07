@@ -13,10 +13,6 @@ inputs:
     description: "If not automatically detectable, you may specify your preferred package manager"
     required: false
     default: ""
-outputs:
-  package-manager:
-    description: "detected package manager"
-    value: ${{ steps.lockfile.outputs.package-manager }}
 
 runs:
   using: composite
@@ -29,13 +25,13 @@ runs:
       run: |
         len=`echo $INPUT_PM | wc -c`
         if [ $len -gt 1 ]; then
-            echo "'::set-output name=package-manager::$INPUT_PM'"
+            echo "'::set-output name=PACKAGE_MANAGER::$INPUT_PM'"
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then 
-            echo "'::set-output name=package-manager::pnpm'"
+            echo "'::set-output name=PACKAGE_MANAGER::pnpm'"
         elif [ $(find "." -name "yarn.lock") ]; then 
-            echo "'::set-output name=package-manager::yarn'"
+            echo "'::set-output name=PACKAGE_MANAGER::yarn'"
         elif [ $(find "." -name "package-lock.json") ]; then 
-            echo "'::set-output name=package-manager::npm'"
+            echo "'::set-output name=PACKAGE_MANAGER::npm'"
         else
             echo "No lockfile found.
         Please specify your preferred \"package-manager\" in the action configuration."
@@ -43,22 +39,26 @@ runs:
         fi
 
     - name: Setup PNPM
-      if: ${{ outputs.package-manager.value == 'pnpm' }}
+      if: ${{ steps.lockfile.output.pm == 'pnpm' }}
       uses: pnpm/action-setup@v2.2.2
 
     - name: Setup Node
       uses: actions/setup-node@v3
       with:
         node-version: ${{ inputs.node-version }}
-        cache: ${{ outputs.package-manager.value }}
+        cache: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }}
 
     - name: Install
       shell: "bash"
-      run: ${{ outputs.package-manager.value }} install
+      env:
+        PACKAGE_MANAGER: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }}
+      run: $PACKAGE_MANAGER install
 
     - name: Build
       shell: "bash"
-      run: ${{ outputs.package-manager.value }} run build
+      env:
+        PACKAGE_MANAGER: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }}
+      run: $PACKAGE_MANAGER run build
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v1
