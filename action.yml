@@ -43,8 +43,10 @@ runs:
         fi
 
     - name: Setup PNPM
-      if: ${{ steps.lockfile.outputs.pm == 'pnpm' }}
+      if: ${{ steps.lockfile.outputs.PACKAGE_MANAGER == 'pnpm' }}
       uses: pnpm/action-setup@v2.2.2
+      with:
+        version: 7.x.x
 
     - name: Setup Node
       uses: actions/setup-node@v3
