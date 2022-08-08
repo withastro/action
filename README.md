@@ -6,6 +6,8 @@ For more information, please see our complete deployment guide—[Deploy your As
 
 ## Usage
 
+> **Note**: Want to get started even faster? Create a repository from our official [GitHub Pages template](https://github.com/withastro/github-pages)!
+
 ### Inputs
 
 - `path` - Optional: the root location of your Astro project inside the repository. Defaults to `/`.
