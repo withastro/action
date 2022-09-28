@@ -57,6 +57,9 @@ runs:
         node-version: ${{ inputs.node-version }}
         cache: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }}
 
+    - name: Setup Pages
+      uses: actions/configure-pages@v2
+
     - name: Install
       shell: "bash"
       run: $node_pm install
