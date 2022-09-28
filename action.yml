@@ -7,7 +7,7 @@ inputs:
   path:
     description: "Path of the directory containing your site"
     required: false
-    default: ""
+    default: "."
   node-version:
     description: "The node version to use"
     required: false
