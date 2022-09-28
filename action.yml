@@ -65,7 +65,7 @@ runs:
       shell: "bash"
       env:
         PACKAGE_MANAGER: ${{ steps.lockfile.outputs.PACKAGE_MANAGER }}
-      run: $node_pm run build
+      run: $node_pm run --prefix ${{ inputs.path }} build
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v1
