@@ -10,7 +10,7 @@ For more information, please see our complete deployment guide—[Deploy your As
 
 ### Inputs
 
-- `path` - Optional: the root location of your Astro project inside the repository. Defaults to `/`.
+- `path` - Optional: the root location of your Astro project inside the repository.
 - `node-version` - Optional: the specific version of Node that should be used to build your site. Defaults to `16`.
 - `package-manager` - Optional: the Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile.
 
@@ -21,7 +21,7 @@ For more information, please see our complete deployment guide—[Deploy your As
 Create a file at `.github/workflows/deploy.yml` with the following content.
 
 ```yml
-name: Deploy
+name: Deploy to GitHub Pages
 
 on:
   # Trigger the workflow every time you push to the `main` branch
@@ -43,7 +43,7 @@ jobs:
     steps:
       - name: Checkout your repository using git
         uses: actions/checkout@v2          
-      - name: Install, build, and upload your site
+      - name: Install, build, and upload your site output
         uses: withastro/action@v0
 
   deploy:
