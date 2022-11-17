@@ -28,16 +28,16 @@ runs:
       run: |
         len=`echo $INPUT_PM | wc -c`
         if [ $len -gt 1 ]; then
-            echo "::set-output name=PACKAGE_MANAGER::$INPUT_PM"
+            echo "PACKAGE_MANAGER=$INPUT_PM" >> $GITHUB_OUTPUT
             echo "node_pm=$INPUT_PM" >> $GITHUB_ENV
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then
-            echo "::set-output name=PACKAGE_MANAGER::pnpm"
+            echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_OUTPUT
             echo "node_pm=pnpm" >> $GITHUB_ENV
         elif [ $(find "." -name "yarn.lock") ]; then 
-            echo "::set-output name=PACKAGE_MANAGER::yarn"
+            echo "PACKAGE_MANAGER=yarn" >> $GITHUB_OUTPUT
             echo "node_pm=yarn" >> $GITHUB_ENV
         elif [ $(find "." -name "package-lock.json") ]; then 
-            echo "::set-output name=PACKAGE_MANAGER::npm"
+            echo "PACKAGE_MANAGER=npm" >> $GITHUB_OUTPUT
             echo "node_pm=npm" >> $GITHUB_ENV
         else
             echo "No lockfile found.
