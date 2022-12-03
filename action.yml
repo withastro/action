@@ -21,7 +21,6 @@ runs:
   using: composite
   steps:
     - name: Check lockfiles
-      id: lockfile
       shell: "bash"
       env:
         INPUT_PM: ${{ inputs.package-manager }}
@@ -29,16 +28,12 @@ runs:
         len=`echo $INPUT_PM | wc -c`
         if [ $len -gt 1 ]; then
             echo "PACKAGE_MANAGER=$INPUT_PM" >> $GITHUB_ENV
-            echo "node_pm=$INPUT_PM" >> $GITHUB_ENV
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
-            echo "node_pm=pnpm" >> $GITHUB_ENV
         elif [ $(find "." -name "yarn.lock") ]; then 
             echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
-            echo "node_pm=yarn" >> $GITHUB_ENV
         elif [ $(find "." -name "package-lock.json") ]; then 
             echo "PACKAGE_MANAGER=npm" >> $GITHUB_ENV
-            echo "node_pm=npm" >> $GITHUB_ENV
         else
             echo "No lockfile found.
         Please specify your preferred \"package-manager\" in the action configuration."
@@ -60,14 +55,14 @@ runs:
       shell: "bash"
       run: |
         cd ${{ inputs.path }}
-        $node_pm install
+        $PACKAGE_MANAGER install
+
     - name: Build
       shell: "bash"
-      env:
-        PACKAGE_MANAGER: ${{ env.PACKAGE_MANAGER }}
       run: |
         cd ${{ inputs.path }}
-        $node_pm run build
+        $PACKAGE_MANAGER run build
+
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v1
       with:
