@@ -30,10 +30,13 @@ runs:
             echo "PACKAGE_MANAGER=$INPUT_PM" >> $GITHUB_ENV
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
+            echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
         elif [ $(find "." -name "yarn.lock") ]; then 
             echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
+            echo "LOCKFILE=yarn.lock" >> $GITHUB_ENV
         elif [ $(find "." -name "package-lock.json") ]; then 
             echo "PACKAGE_MANAGER=npm" >> $GITHUB_ENV
+            echo "LOCKFILE=package-lock.json" >> $GITHUB_ENV
         else
             echo "No lockfile found.
         Please specify your preferred \"package-manager\" in the action configuration."
@@ -50,6 +53,7 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
+        cache-dependency-path: "${{ inputs.path }}/${{ env.LOCKFILE }}"
 
     - name: Install
       shell: "bash"
