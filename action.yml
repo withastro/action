@@ -16,6 +16,11 @@ inputs:
     description: "If not automatically detectable, you may specify your preferred package manager"
     required: false
     default: ""
+  resolve-dep-from-path:
+    description: "If the dependency file is located inside the folder specified by path" 
+    type: boolean
+    required: false
+    default: true 
 
 runs:
   using: composite
@@ -50,10 +55,18 @@ runs:
 
     - name: Setup Node
       uses: actions/setup-node@v3
+      if: inputs.resolve-dep-from-path == true 
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
         cache-dependency-path: "${{ inputs.path }}/${{ env.LOCKFILE }}"
+
+    - name: Setup Node
+      uses: actions/setup-node@v3
+      if: inputs.resolve-dep-from-path == false 
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache: ${{ env.PACKAGE_MANAGER }}
 
     - name: Install
       shell: "bash"
