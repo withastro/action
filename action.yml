@@ -16,6 +16,10 @@ inputs:
     description: "If not automatically detectable, you may specify your preferred package manager"
     required: false
     default: ""
+  pnpm-version:
+    description: "If package-manager is pnpm, use this specific version. Defaults to latest"
+    required: false
+    default: "latest"
   resolve-dep-from-path:
     description: "If the dependency file is located inside the folder specified by path" 
     type: boolean
@@ -49,9 +53,9 @@ runs:
         fi
     - name: Setup PNPM
       if: ${{ env.PACKAGE_MANAGER == 'pnpm' }}
-      uses: pnpm/action-setup@v2.2.2
+      uses: pnpm/action-setup@v2.2.4
       with:
-        version: 7.x.x
+        version: ${{ inputs.pnpm-version }}
 
     - name: Setup Node
       uses: actions/setup-node@v3
