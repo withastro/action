@@ -51,7 +51,7 @@ jobs:
             # path: . # The root location of your Astro project inside the repository. (optional)
             # node-version: 16 # The specific version of Node that should be used to build your site. Defaults to 16. (optional)
             # package-manager: pnpm # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
-            # pnpm-version: 8.x  # If `package-manager` is set to `pnpm`, use this specific version. Defaults to `latest`. (optional)
+            # pnpm-version: 8.x.x  # If `package-manager` is set to `pnpm`, use this specific version. Defaults to `latest`. (optional)
             # resolve-dep-from-path: false # If the dependency file should be resolved from the root location of your Astro project. Defaults to `true`. (optional)
 
   deploy:
