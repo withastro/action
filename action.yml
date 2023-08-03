@@ -60,7 +60,7 @@ runs:
       if: ${{ env.PACKAGE_MANAGER == 'bun' }}
       uses: oven-sh/setup-bun@v1
       with:
-        version: latest
+        bun-version: latest
 
     - name: Setup Node
       uses: actions/setup-node@v3
