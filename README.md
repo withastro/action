@@ -47,10 +47,10 @@ jobs:
       - name: Install, build, and upload your site output
         uses: withastro/action@v0
         # with:
-        # path: . # The root location of your Astro project inside the repository. (optional)
-        # node-version: 16 # The specific version of Node that should be used to build your site. Defaults to 16. (optional)
-        # package-manager: yarn # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
-        # resolve-dep-from-path: false # If the dependency file should be resolved from the root location of your Astro project. Defaults to `true`. (optional)
+            # path: . # The root location of your Astro project inside the repository. (optional)
+            # node-version: 16 # The specific version of Node that should be used to build your site. Defaults to 16. (optional)
+            # package-manager: yarn # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
+            # resolve-dep-from-path: false # If the dependency file should be resolved from the root location of your Astro project. Defaults to `true`. (optional)
 
   deploy:
     needs: build
