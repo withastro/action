@@ -13,7 +13,7 @@ For more information, please see our complete deployment guide—[Deploy your As
 - `path` - Optional: the root location of your Astro project inside the repository.
 - `node-version` - Optional: the specific version of Node that should be used to build your site. Defaults to `16`.
 - `package-manager` - Optional: the Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile.
-- `pnpm-version` - Optional: If `package-manager` is set to `pnpm`, use this specific version. Defaults to `latest`.
+- `pnpm-version` - Optional: If `package-manager` is set to `pnpm`, use this specific version. Defaults to `7.x.x`.
 - `resolve-dep-from-path` - Optional: If the dependency file should be resolved from the root location of your Astro project. Defaults to `true`.
 
 ### Example workflow:
@@ -51,7 +51,7 @@ jobs:
             # path: . # The root location of your Astro project inside the repository. (optional)
             # node-version: 16 # The specific version of Node that should be used to build your site. Defaults to 16. (optional)
             # package-manager: pnpm # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
-            # pnpm-version: 8.x.x  # If `package-manager` is set to `pnpm`, use this specific version. Defaults to `latest`. (optional)
+            # pnpm-version: 8.x.x  # If `package-manager` is set to `pnpm`, use this specific version. Defaults to `7.x.x`. (optional)
             # resolve-dep-from-path: false # If the dependency file should be resolved from the root location of your Astro project. Defaults to `true`. (optional)
 
   deploy:

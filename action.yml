@@ -19,7 +19,7 @@ inputs:
   pnpm-version:
     description: "If package-manager is pnpm, use this specific version. Defaults to latest"
     required: false
-    default: "latest"
+    default: "7.x.x"
   resolve-dep-from-path:
     description: "If the dependency file is located inside the folder specified by path" 
     type: boolean
