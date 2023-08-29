@@ -42,6 +42,9 @@ runs:
         elif [ $(find "." -name "package-lock.json") ]; then 
             echo "PACKAGE_MANAGER=npm" >> $GITHUB_ENV
             echo "LOCKFILE=package-lock.json" >> $GITHUB_ENV
+        elif [ $(find "." -name "bun.lockb") ]; then 
+            echo "PACKAGE_MANAGER=bun" >> $GITHUB_ENV
+            echo "LOCKFILE=bun.lockb" >> $GITHUB_ENV
         else
             echo "No lockfile found.
         Please specify your preferred \"package-manager\" in the action configuration."
@@ -52,6 +55,12 @@ runs:
       uses: pnpm/action-setup@v2.2.4
       with:
         version: 7.x.x
+    
+    - name: Setup Bun
+      if: ${{ env.PACKAGE_MANAGER == 'bun' }}
+      uses: oven-sh/setup-bun@v1
+      with:
+        bun-version: latest
 
     - name: Setup Node
       uses: actions/setup-node@v3
