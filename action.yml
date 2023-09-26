@@ -68,10 +68,17 @@ runs:
 
     - name: Setup Node
       uses: actions/setup-node@v3
+      if: ${{ env.PACKAGE_MANAGER != 'bun' }}
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
         cache-dependency-path: "${{ inputs.path }}/${{ env.LOCKFILE }}"
+    
+    - name: Setup Node (Bun)
+      uses: actions/setup-node@v3
+      if: ${{ env.PACKAGE_MANAGER == 'bun' }}
+      with:
+        node-version: ${{ inputs.node-version }}
 
     - name: Install
       shell: "bash"
