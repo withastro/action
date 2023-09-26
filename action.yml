@@ -4,27 +4,18 @@ branding:
   icon: "box"
   color: "orange"
 inputs:
+  node-version:
+    description: "The node version to use"
+    required: false
+    default: "18"
+  package-manager:
+    description: "You may specify your preferred package manager (one of `npm | yarn | pnpm | bun` and an optional `@<version>` tag). Otherwise, the package manager will be automatically detected."
+    required: false
+    default: ""
   path:
     description: "Path of the directory containing your site"
     required: false
     default: "."
-  node-version:
-    description: "The node version to use"
-    required: false
-    default: "16"
-  package-manager:
-    description: "If not automatically detectable, you may specify your preferred package manager"
-    required: false
-    default: ""
-  pnpm-version:
-    description: "If package-manager is pnpm, use this specific version. Defaults to latest"
-    required: false
-    default: "7.x.x"
-  resolve-dep-from-path:
-    description: "If the dependency file is located inside the folder specified by path" 
-    type: boolean
-    required: false
-    default: true 
 
 runs:
   using: composite
@@ -36,7 +27,13 @@ runs:
       run: |
         len=`echo $INPUT_PM | wc -c`
         if [ $len -gt 1 ]; then
-            echo "PACKAGE_MANAGER=$INPUT_PM" >> $GITHUB_ENV
+          PACKAGE_MANAGER=$(echo "$INPUT_PM" | grep -o '^[^@]*')
+          VERSION=$(echo "$INPUT_PM" | grep -o '@.*' | sed 's/^@//')
+          # Set default VERSION if not provided
+          if [ -z "$VERSION" ]; then
+              VERSION="latest"
+          fi
+          echo "PACKAGE_MANAGER=$PACKAGE_MANAGER" >> $GITHUB_ENV
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
             echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
@@ -44,9 +41,11 @@ runs:
             echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
             echo "LOCKFILE=yarn.lock" >> $GITHUB_ENV
         elif [ $(find "." -name "package-lock.json") ]; then 
+            VERSION="latest"
             echo "PACKAGE_MANAGER=npm" >> $GITHUB_ENV
             echo "LOCKFILE=package-lock.json" >> $GITHUB_ENV
         elif [ $(find "." -name "bun.lockb") ]; then 
+            VERSION="latest"
             echo "PACKAGE_MANAGER=bun" >> $GITHUB_ENV
             echo "LOCKFILE=bun.lockb" >> $GITHUB_ENV
         else
@@ -54,32 +53,25 @@ runs:
         Please specify your preferred \"package-manager\" in the action configuration."
             exit 1
         fi
+        echo "VERSION=$VERSION" >> $GITHUB_ENV
     - name: Setup PNPM
       if: ${{ env.PACKAGE_MANAGER == 'pnpm' }}
-      uses: pnpm/action-setup@v2.2.4
+      uses: pnpm/action-setup@v2
       with:
-        version: ${{ inputs.pnpm-version }}
+        version: ${{ env.VERSION }}
     
     - name: Setup Bun
       if: ${{ env.PACKAGE_MANAGER == 'bun' }}
       uses: oven-sh/setup-bun@v1
       with:
-        bun-version: latest
+        bun-version: ${{ env.VERSION }}
 
     - name: Setup Node
       uses: actions/setup-node@v3
-      if: inputs.resolve-dep-from-path == true 
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
         cache-dependency-path: "${{ inputs.path }}/${{ env.LOCKFILE }}"
-
-    - name: Setup Node
-      uses: actions/setup-node@v3
-      if: inputs.resolve-dep-from-path == false 
-      with:
-        node-version: ${{ inputs.node-version }}
-        cache: ${{ env.PACKAGE_MANAGER }}
 
     - name: Install
       shell: "bash"
