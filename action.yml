@@ -62,7 +62,7 @@ runs:
             VERSION="latest"
             echo "PACKAGE_MANAGER=bun" >> $GITHUB_ENV
             echo "COMMAND=install --frozen-lockfile" >> $GITHUB_ENV
-            echo "RUNNER=bun run --bun" >> $GITHUB_OUTPUT
+            echo "RUNNER='bun run --bun'" >> $GITHUB_OUTPUT
             echo "LOCKFILE=bun.lockb" >> $GITHUB_ENV
         else
             echo "No lockfile found.
