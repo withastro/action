@@ -1,8 +1,8 @@
 name: "Astro Deploy"
-description: "A composite action that prepares your Astro site to be deployed to GitHub Pages"
+description: "A composite action that deploys your Astro site to GitHub Pages"
 branding:
   icon: "box"
-  color: "orange"
+  color: "purple"
 inputs:
   node-version:
     description: "The node version to use"
@@ -16,6 +16,8 @@ inputs:
     description: "Path of the directory containing your site"
     required: false
     default: "."
+outputs:
+  page_url: ${{ steps.deploy.output.page_url }}
 
 runs:
   using: composite
@@ -110,3 +112,7 @@ runs:
       uses: actions/upload-pages-artifact@v2
       with:
         path: "${{ inputs.path }}/dist/"
+
+    - name: Deploy to GitHub Pages
+      id: deploy
+      uses: actions/deploy-pages@v2
