@@ -45,7 +45,7 @@ runs:
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
             echo "COMMAND=install" >> $GITHUB_ENV
-            echo "RUNNER=pnpm exec" >> $GITHUB_OUTPUT
+            echo "RUNNER='pnpm exec'" >> $GITHUB_OUTPUT
             echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
         elif [ $(find "." -name "yarn.lock") ]; then 
             echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
