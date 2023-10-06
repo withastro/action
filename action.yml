@@ -56,7 +56,7 @@ runs:
             VERSION="latest"
             echo "PACKAGE_MANAGER=npm" >> $GITHUB_ENV
             echo "COMMAND=ci" >> $GITHUB_ENV
-            echo "RUNNER=npx --no-install" >> $GITHUB_OUTPUT
+            echo "RUNNER='npx --no-install'" >> $GITHUB_OUTPUT
             echo "LOCKFILE=package-lock.json" >> $GITHUB_ENV
         elif [ $(find "." -name "bun.lockb") ]; then 
             VERSION="latest"
