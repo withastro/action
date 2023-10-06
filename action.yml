@@ -17,11 +17,16 @@ inputs:
     required: false
     default: "."
 outputs:
-  page_url: ${{ steps.deploy.output.page_url }}
+  url:
+    description: "The URL of the deployed Pages site"
+    value: ${{ steps.deploy.output.page_url }}
 
 runs:
   using: composite
   steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
     - name: Check lockfiles
       shell: "bash"
       working-directory: ${{ inputs.path }}
