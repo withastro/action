@@ -45,24 +45,24 @@ runs:
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
             echo "COMMAND=install" >> $GITHUB_ENV
-            echo "RUNNER='pnpm exec'" >> $GITHUB_OUTPUT
+            echo "RUNNER=pnpm exec" >> $GITHUB_ENV
             echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
         elif [ $(find "." -name "yarn.lock") ]; then 
             echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
             echo "COMMAND=install" >> $GITHUB_ENV
-            echo "RUNNER=yarn" >> $GITHUB_OUTPUT
+            echo "RUNNER=yarn" >> $GITHUB_ENV
             echo "LOCKFILE=yarn.lock" >> $GITHUB_ENV
         elif [ $(find "." -name "package-lock.json") ]; then 
             VERSION="latest"
             echo "PACKAGE_MANAGER=npm" >> $GITHUB_ENV
             echo "COMMAND=ci" >> $GITHUB_ENV
-            echo "RUNNER='npx --no-install'" >> $GITHUB_OUTPUT
+            echo "RUNNER=npx --no-install" >> $GITHUB_ENV
             echo "LOCKFILE=package-lock.json" >> $GITHUB_ENV
         elif [ $(find "." -name "bun.lockb") ]; then 
             VERSION="latest"
             echo "PACKAGE_MANAGER=bun" >> $GITHUB_ENV
             echo "COMMAND=install --frozen-lockfile" >> $GITHUB_ENV
-            echo "RUNNER='bun run --bun'" >> $GITHUB_OUTPUT
+            echo "RUNNER=bun run --bun" >> $GITHUB_ENV
             echo "LOCKFILE=bun.lockb" >> $GITHUB_ENV
         else
             echo "No lockfile found.
