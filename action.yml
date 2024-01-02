@@ -67,7 +67,7 @@ runs:
         bun-version: ${{ env.VERSION }}
 
     - name: Setup Node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       if: ${{ env.PACKAGE_MANAGER != 'bun' }}
       with:
         node-version: ${{ inputs.node-version }}
