@@ -93,6 +93,5 @@ runs:
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v3
-      working-directory: ${{ inputs.path }}
       with:
-        path: "dist"
+        path: "${{ inputs.path }}/dist"
