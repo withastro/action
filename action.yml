@@ -68,7 +68,7 @@ runs:
         bun-version: ${{ env.VERSION }}
 
     - name: Setup Node
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       if: ${{ env.PACKAGE_MANAGER != 'bun' }}
       with:
         node-version: ${{ inputs.node-version }}
@@ -76,7 +76,7 @@ runs:
         cache-dependency-path: "${{ inputs.path }}/${{ env.LOCKFILE }}"
     
     - name: Setup Node (Bun)
-      uses: actions/setup-node@v3
+      uses: actions/setup-node@v4
       if: ${{ env.PACKAGE_MANAGER == 'bun' }}
       with:
         node-version: ${{ inputs.node-version }}
@@ -92,7 +92,7 @@ runs:
       run: $PACKAGE_MANAGER run build
 
     - name: Upload Pages Artifact
-      uses: actions/upload-pages-artifact@v1
+      uses: actions/upload-pages-artifact@v3
       working-directory: ${{ inputs.path }}
       with:
         path: "dist"
