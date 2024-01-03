@@ -92,6 +92,7 @@ runs:
       run: $PACKAGE_MANAGER run build
 
     - name: Upload Pages Artifact
-      uses: actions/upload-pages-artifact@v3
+      # Must use v2 to avoid requiring `actions/deploy-pages@v4` or newer
+      uses: actions/upload-pages-artifact@v2
       with:
         path: "${{ inputs.path }}/dist/"
