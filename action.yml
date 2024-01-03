@@ -22,6 +22,7 @@ runs:
   steps:
     - name: Check lockfiles
       shell: "bash"
+      working-directory: ${{ inputs.path }}
       env:
         INPUT_PM: ${{ inputs.package-manager }}
       run: |
@@ -82,17 +83,16 @@ runs:
 
     - name: Install
       shell: "bash"
-      run: |
-        cd ${{ inputs.path }}
-        $PACKAGE_MANAGER install
+      working-directory: ${{ inputs.path }}
+      run: $PACKAGE_MANAGER install
 
     - name: Build
       shell: "bash"
-      run: |
-        cd ${{ inputs.path }}
-        $PACKAGE_MANAGER run build
+      working-directory: ${{ inputs.path }}
+      run: $PACKAGE_MANAGER run build
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v3
+      working-directory: ${{ inputs.path }}
       with:
-        path: "${{ inputs.path }}/dist/"
+        path: "dist"
