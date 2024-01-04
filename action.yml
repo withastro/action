@@ -27,49 +27,65 @@ runs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
-    - name: Check lockfiles
+    - name: Check tools
       shell: "bash"
       working-directory: ${{ inputs.path }}
       env:
         INPUT_PM: ${{ inputs.package-manager }}
       run: |
-        len=`echo $INPUT_PM | wc -c`
+        # Set $PACKAGE_MANAGER based on input or detected lockfile
+        len=$(echo $INPUT_PM | wc -c)
         if [ $len -gt 1 ]; then
           PACKAGE_MANAGER=$(echo "$INPUT_PM" | grep -o '^[^@]*')
           VERSION=$(echo "$INPUT_PM" | grep -o '@.*' | sed 's/^@//')
-          # Set default VERSION if not provided
-          if [ -z "$VERSION" ]; then
-              VERSION="latest"
-          fi
-          echo "PACKAGE_MANAGER=$PACKAGE_MANAGER" >> $GITHUB_ENV
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then
-            echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
-            echo "COMMAND=install" >> $GITHUB_ENV
-            echo "RUNNER=pnpm exec" >> $GITHUB_ENV
-            echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
-        elif [ $(find "." -name "yarn.lock") ]; then 
-            echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
-            echo "COMMAND=install" >> $GITHUB_ENV
-            echo "RUNNER=yarn" >> $GITHUB_ENV
-            echo "LOCKFILE=yarn.lock" >> $GITHUB_ENV
-        elif [ $(find "." -name "package-lock.json") ]; then 
-            VERSION="latest"
-            echo "PACKAGE_MANAGER=npm" >> $GITHUB_ENV
-            echo "COMMAND=ci" >> $GITHUB_ENV
-            echo "RUNNER=npx --no-install" >> $GITHUB_ENV
-            echo "LOCKFILE=package-lock.json" >> $GITHUB_ENV
-        elif [ $(find "." -name "bun.lockb") ]; then 
-            VERSION="latest"
-            echo "PACKAGE_MANAGER=bun" >> $GITHUB_ENV
-            echo "COMMAND=install --frozen-lockfile" >> $GITHUB_ENV
-            echo "RUNNER=bun run --bun" >> $GITHUB_ENV
-            echo "LOCKFILE=bun.lockb" >> $GITHUB_ENV
+          PACKAGE_MANAGER=pnpm
+        elif [ $(find "." -name "yarn.lock") ]; then
+          PACKAGE_MANAGER=yarn
+        elif [ $(find "." -name "package-lock.json") ]; then
+          PACKAGE_MANAGER=npm
+        elif [ $(find "." -name "bun.lockb") ]; then
+          PACKAGE_MANAGER=bun
         else
-            echo "No lockfile found.
+          echo "No lockfile found.
         Please specify your preferred \"package-manager\" in the action configuration."
-            exit 1
+          exit 1
         fi
-        echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+        # If no $VERSION has been provided, default to latest
+        if [ -z "$VERSION" ]; then
+          VERSION="latest"
+        fi
+
+        case $PACKAGE_MANAGER in
+        npm)
+          COMMAND=ci
+          RUNNER="npx --no-install"
+          LOCKFILE=package-lock.json
+          ;;
+        pnpm)
+          COMMAND=install
+          RUNNER="pnpm exec"
+          LOCKFILE=pnpm-lock.yaml
+          ;;
+        yarn)
+          COMMAND=install
+          RUNNER=yarn
+          LOCKFILE=yarn.lock
+          ;;
+        bun)
+          COMMAND="install --frozen-lockfile"
+          RUNNER="bun run --bun"
+          LOCKFILE=bun.lockb
+          ;;
+        esac
+
+        echo "PACKAGE_MANAGER=\"$PACKAGE_MANAGER\"
+        VERSION=\"$VERSION\"
+        COMMAND=\"$COMMAND\"
+        RUNNER=\"$RUNNER\"
+        LOCKFILE=\"$LOCKFILE\"" >>$GITHUB_ENV
+
     - name: Setup PNPM
       if: ${{ env.PACKAGE_MANAGER == 'pnpm' }}
       uses: pnpm/action-setup@v2
@@ -113,8 +129,7 @@ runs:
           --base "${{ steps.pages.outputs.base_path }}"
 
     - name: Upload Pages Artifact
-      # Must use v2 to avoid requiring `actions/deploy-pages@v4` or newer
-      uses: actions/upload-pages-artifact@v2
+      uses: actions/upload-pages-artifact@v3
       with:
         path: "${{ inputs.path }}/dist/"
 
