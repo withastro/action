@@ -80,11 +80,11 @@ runs:
           ;;
         esac
 
-        echo "PACKAGE_MANAGER=\"$PACKAGE_MANAGER\"
-        VERSION=\"$VERSION\"
-        COMMAND=\"$COMMAND\"
-        RUNNER=\"$RUNNER\"
-        LOCKFILE=\"$LOCKFILE\"" >>$GITHUB_ENV
+        echo "PACKAGE_MANAGER=$PACKAGE_MANAGER
+        VERSION=$VERSION
+        COMMAND=$COMMAND
+        RUNNER=$RUNNER
+        LOCKFILE=$LOCKFILE" >>$GITHUB_ENV
 
     - name: Setup PNPM
       if: ${{ env.PACKAGE_MANAGER == 'pnpm' }}
