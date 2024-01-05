@@ -7,7 +7,7 @@ inputs:
   node-version:
     description: "The node version to use"
     required: false
-    default: "18"
+    default: "20"
   package-manager:
     description: "You may specify your preferred package manager (one of `npm | yarn | pnpm | bun` and an optional `@<version>` tag). Otherwise, the package manager will be automatically detected."
     required: false
@@ -33,57 +33,58 @@ runs:
       env:
         INPUT_PM: ${{ inputs.package-manager }}
       run: |
-        # Set $PACKAGE_MANAGER based on input or detected lockfile
+        # Check tools
+        # Sets $PACKAGE_MANAGER based on input or detected lockfile
         len=$(echo $INPUT_PM | wc -c)
         if [ $len -gt 1 ]; then
-          PACKAGE_MANAGER=$(echo "$INPUT_PM" | grep -o '^[^@]*')
-          VERSION=$(echo "$INPUT_PM" | grep -o '@.*' | sed 's/^@//')
+            PACKAGE_MANAGER=$(echo "$INPUT_PM" | grep -o '^[^@]*')
+            VERSION=$(echo "$INPUT_PM" | grep -o '@.*' | sed 's/^@//')
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then
-          PACKAGE_MANAGER=pnpm
+            PACKAGE_MANAGER=pnpm
         elif [ $(find "." -name "yarn.lock") ]; then
-          PACKAGE_MANAGER=yarn
+            PACKAGE_MANAGER=yarn
         elif [ $(find "." -name "package-lock.json") ]; then
-          PACKAGE_MANAGER=npm
+            PACKAGE_MANAGER=npm
         elif [ $(find "." -name "bun.lockb") ]; then
-          PACKAGE_MANAGER=bun
+            PACKAGE_MANAGER=bun
         else
-          echo "No lockfile found.
-        Please specify your preferred \"package-manager\" in the action configuration."
-          exit 1
+            echo "No lockfile found.
+                Please specify your preferred \"package-manager\" in the action configuration."
+            exit 1
         fi
 
         # If no $VERSION has been provided, default to latest
         if [ -z "$VERSION" ]; then
-          VERSION="latest"
+            VERSION="latest"
         fi
 
         case $PACKAGE_MANAGER in
         npm)
-          COMMAND=ci
-          RUNNER="npx --no-install"
-          LOCKFILE=package-lock.json
-          ;;
+            COMMAND=(ci)
+            RUNNER=(npx --no-install)
+            LOCKFILE=package-lock.json
+            ;;
         pnpm)
-          COMMAND=install
-          RUNNER="pnpm exec"
-          LOCKFILE=pnpm-lock.yaml
-          ;;
+            COMMAND=(install)
+            RUNNER=(pnpm exec)
+            LOCKFILE=pnpm-lock.yaml
+            ;;
         yarn)
-          COMMAND=install
-          RUNNER=yarn
-          LOCKFILE=yarn.lock
-          ;;
+            COMMAND=(install)
+            RUNNER=(yarn)
+            LOCKFILE=yarn.lock
+            ;;
         bun)
-          COMMAND="install --frozen-lockfile"
-          RUNNER="bun run --bun"
-          LOCKFILE=bun.lockb
-          ;;
+            COMMAND=(install --frozen-lockfile)
+            RUNNER=(bun run --bun)
+            LOCKFILE=bun.lockb
+            ;;
         esac
 
         echo "PACKAGE_MANAGER=$PACKAGE_MANAGER
         VERSION=$VERSION
-        COMMAND=$COMMAND
-        RUNNER=$RUNNER
+        COMMAND=(${COMMAND[@]})
+        RUNNER=(${RUNNER[@]})
         LOCKFILE=$LOCKFILE" >>$GITHUB_ENV
 
     - name: Setup PNPM
@@ -119,12 +120,12 @@ runs:
     - name: Install
       shell: "bash"
       working-directory: ${{ inputs.path }}
-      run: $PACKAGE_MANAGER $COMMAND
+      run: $PACKAGE_MANAGER ${COMMAND[@]}
 
     - name: Build
       shell: "bash"
       working-directory: ${{ inputs.path }}
-      run: $RUNNER astro build \
+      run: ${RUNNER[@]} astro build \
           --site "${{ steps.pages.outputs.origin }}" \
           --base "${{ steps.pages.outputs.base_path }}"
 
