@@ -116,6 +116,8 @@ runs:
     - name: Setup Pages
       id: pages
       uses: actions/configure-pages@v3
+      with:
+        enablement: true
 
     - name: Install
       shell: "bash"
