@@ -122,12 +122,12 @@ runs:
     - name: Install
       shell: "bash"
       working-directory: ${{ inputs.path }}
-      run: $PACKAGE_MANAGER $COMMAND ${COMMAND[@]:1}
+      run: $PACKAGE_MANAGER $COMMAND[1] ("${COMMAND[@]:1}")
 
     - name: Build
       shell: "bash"
       working-directory: ${{ inputs.path }}
-      run: $RUNNER ${RUNNER[@]:1} astro build \
+      run: $RUNNER[1] ("${RUNNER[@]:1}") astro build \
           --site "${{ steps.pages.outputs.origin }}" \
           --base "${{ steps.pages.outputs.base_path }}"
 
