@@ -58,33 +58,39 @@ runs:
             VERSION="latest"
         fi
 
+        COMMAND_FLAGS=()
+        RUNNER_FLAGS=()
         case $PACKAGE_MANAGER in
         npm)
-            COMMAND=(ci)
-            RUNNER=(npx --no-install)
+            COMMAND=ci
+            RUNNER=npm
+            RUNNER_FLAGS=("exec" "--no-install" "--")
             LOCKFILE=package-lock.json
             ;;
         pnpm)
-            COMMAND=(install)
-            RUNNER=(pnpm exec)
+            COMMAND=install
+            RUNNER=pnpm
+            RUNNER_FLAGS=(exec)
             LOCKFILE=pnpm-lock.yaml
             ;;
         yarn)
-            COMMAND=(install)
-            RUNNER=(yarn)
+            COMMAND=install
+            RUNNER=yarn
             LOCKFILE=yarn.lock
             ;;
         bun)
-            COMMAND=("install" "--frozen-lockfile")
-            RUNNER=(bun "run" "--bun")
+            COMMAND=install
+            RUNNER=bun
+            RUNNER_FLAGS=("run" "--bun")
             LOCKFILE=bun.lockb
             ;;
         esac
 
         echo "PACKAGE_MANAGER=$PACKAGE_MANAGER
         VERSION=$VERSION
-        COMMAND=(${COMMAND[@]})
-        RUNNER=(${RUNNER[@]})
+        COMMAND=$COMMAND
+        RUNNER=$RUNNER
+        RUNNER_FLAGS=($RUNNER_FLAGS[@])
         LOCKFILE=$LOCKFILE" >>$GITHUB_ENV
 
     - name: Setup PNPM
@@ -122,12 +128,12 @@ runs:
     - name: Install
       shell: "bash"
       working-directory: ${{ inputs.path }}
-      run: $PACKAGE_MANAGER ("${COMMAND[@]}")
+      run: $PACKAGE_MANAGER $COMMAND
 
     - name: Build
       shell: "bash"
       working-directory: ${{ inputs.path }}
-      run: ${RUNNER[0]} ("${RUNNER[@]:1}") astro build \
+      run: $RUNNER ${RUNNER_FLAGS[@]} astro build \
           --site "${{ steps.pages.outputs.origin }}" \
           --base "${{ steps.pages.outputs.base_path }}"
 
