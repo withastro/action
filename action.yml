@@ -58,18 +58,18 @@ runs:
             VERSION="latest"
         fi
 
-        RUNNER_FLAGS=()
+        RUNNER_FLAGS=""
         case $PACKAGE_MANAGER in
         npm)
             COMMAND=ci
             RUNNER=npm
-            RUNNER_FLAGS=("exec" "--no-install" "--")
+            RUNNER_FLAGS="exec --no-install --"
             LOCKFILE=package-lock.json
             ;;
         pnpm)
             COMMAND=install
             RUNNER=pnpm
-            RUNNER_FLAGS=(exec)
+            RUNNER_FLAGS=exec
             LOCKFILE=pnpm-lock.yaml
             ;;
         yarn)
@@ -80,7 +80,7 @@ runs:
         bun)
             COMMAND=install
             RUNNER=bun
-            RUNNER_FLAGS=("run" "--bun")
+            RUNNER_FLAGS="run --bun"
             LOCKFILE=bun.lockb
             ;;
         esac
@@ -89,7 +89,7 @@ runs:
         VERSION=$VERSION
         COMMAND=$COMMAND
         RUNNER=$RUNNER
-        RUNNER_FLAGS=($RUNNER_FLAGS[@])
+        RUNNER_FLAGS=$RUNNER_FLAGS
         LOCKFILE=$LOCKFILE" >>$GITHUB_ENV
 
     - name: Setup PNPM
@@ -132,7 +132,7 @@ runs:
     - name: Build
       shell: "bash"
       working-directory: ${{ inputs.path }}
-      run: eval "$RUNNER ${RUNNER_FLAGS[@]} astro build --site \"${{ steps.pages.outputs.origin }}\" --base \"${{ steps.pages.outputs.base_path }}\""
+      run: eval "$RUNNER $RUNNER_FLAGS astro build --site \"${{ steps.pages.outputs.origin }}\" --base \"${{ steps.pages.outputs.base_path }}\""
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v3
