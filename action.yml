@@ -58,7 +58,6 @@ runs:
             VERSION="latest"
         fi
 
-        COMMAND_FLAGS=()
         RUNNER_FLAGS=()
         case $PACKAGE_MANAGER in
         npm)
