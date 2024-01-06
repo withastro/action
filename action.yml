@@ -132,9 +132,7 @@ runs:
     - name: Build
       shell: "bash"
       working-directory: ${{ inputs.path }}
-      run: $RUNNER ${RUNNER_FLAGS[@]} astro build \
-          --site "${{ steps.pages.outputs.origin }}" \
-          --base "${{ steps.pages.outputs.base_path }}"
+      run: exec "$RUNNER ${RUNNER_FLAGS[@]} astro build --site \"${{ steps.pages.outputs.origin }}\" --base \"${{ steps.pages.outputs.base_path }}\""
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v3
