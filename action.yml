@@ -19,7 +19,7 @@ inputs:
 outputs:
   url:
     description: "The URL of the deployed Pages site"
-    value: ${{ steps.deploy.output.page_url }}
+    value: ${{ steps.deploy.outputs.page_url }}
 
 runs:
   using: composite
