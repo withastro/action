@@ -122,7 +122,7 @@ runs:
     - name: Install
       shell: "bash"
       working-directory: ${{ inputs.path }}
-      run: $PACKAGE_MANAGER ${COMMAND[0]}
+      run: $PACKAGE_MANAGER ${COMMAND[1]}
 
     - name: Build
       shell: "bash"
