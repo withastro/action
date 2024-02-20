@@ -1,7 +1,7 @@
 name: "Astro Deploy"
 description: "A composite action that prepares your Astro site to be deployed to GitHub Pages"
 branding:
-  icon: "astro"
+  icon: "arrow-up-right"
   color: "purple"
 inputs:
   node-version:
