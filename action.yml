@@ -8,6 +8,10 @@ inputs:
     description: "The node version to use"
     required: false
     default: "20"
+  node-version-file:
+    description: "You may specify file path where node version is defined (e.g. package.json, .nvmrc, .node-version, .tool-versions.)"
+    required: false
+    default: ""
   package-manager:
     description: "You may specify your preferred package manager (one of `npm | yarn | pnpm | bun` and an optional `@<version>` tag). Otherwise, the package manager will be automatically detected."
     required: false
@@ -38,14 +42,14 @@ runs:
         elif [ $(find "." -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
             echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
-        elif [ $(find "." -name "yarn.lock") ]; then 
+        elif [ $(find "." -name "yarn.lock") ]; then
             echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
             echo "LOCKFILE=yarn.lock" >> $GITHUB_ENV
-        elif [ $(find "." -name "package-lock.json") ]; then 
+        elif [ $(find "." -name "package-lock.json") ]; then
             VERSION="latest"
             echo "PACKAGE_MANAGER=npm" >> $GITHUB_ENV
             echo "LOCKFILE=package-lock.json" >> $GITHUB_ENV
-        elif [ $(find "." -name "bun.lockb") ]; then 
+        elif [ $(find "." -name "bun.lockb") ]; then
             VERSION="latest"
             echo "PACKAGE_MANAGER=bun" >> $GITHUB_ENV
             echo "LOCKFILE=bun.lockb" >> $GITHUB_ENV
@@ -60,7 +64,7 @@ runs:
       uses: pnpm/action-setup@v2
       with:
         version: ${{ env.VERSION }}
-    
+
     - name: Setup Bun
       if: ${{ env.PACKAGE_MANAGER == 'bun' }}
       uses: oven-sh/setup-bun@v1
@@ -72,14 +76,16 @@ runs:
       if: ${{ env.PACKAGE_MANAGER != 'bun' }}
       with:
         node-version: ${{ inputs.node-version }}
+        node-version-file: ${{ inputs.node-version-file }}
         cache: ${{ env.PACKAGE_MANAGER }}
         cache-dependency-path: "${{ inputs.path }}/${{ env.LOCKFILE }}"
-    
+
     - name: Setup Node (Bun)
       uses: actions/setup-node@v4
       if: ${{ env.PACKAGE_MANAGER == 'bun' }}
       with:
         node-version: ${{ inputs.node-version }}
+        node-version-file: ${{ inputs.node-version-file }}
 
     - name: Install
       shell: "bash"
