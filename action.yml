@@ -16,6 +16,10 @@ inputs:
     description: "Path of the directory containing your site"
     required: false
     default: "."
+  out:
+    description: "Path of the directory containing the output build same as for outDir"
+    required: false
+    default: "${{ inputs.path }}/dist/"
 
 runs:
   using: composite
@@ -94,4 +98,4 @@ runs:
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v3
       with:
-        path: "${{ inputs.path }}/dist/"
+        path: "${{ inputs.out }}/"
