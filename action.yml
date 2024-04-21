@@ -17,9 +17,9 @@ inputs:
     required: false
     default: "."
   out:
-    description: "Path of the directory containing the output build same as for outDir"
+    description: "Path of the directory containing the output build same as for outDir. Needed if inputs.path is specified."
     required: false
-    default: "${{ inputs.path }}/dist/"
+    default: "./dist"
 
 runs:
   using: composite
