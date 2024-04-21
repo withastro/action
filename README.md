@@ -11,6 +11,7 @@ For more information, please see our complete deployment guide—[Deploy your As
 ### Inputs
 
 - `path` - Optional: the root location of your Astro project inside the repository.
+- `out` - optional: Path of the directory containing the output build same as for outDir. Needed if path is specified.
 - `node-version` - Optional: the specific version of Node that should be used to build your site. Defaults to `20`.
 - `package-manager` - Optional: the Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. Accepted values: `npm`, `yarn`, `pnpm`, and `bun`. A version tag is also accepted, for example `npm@18.14.1`, `pnpm@8`, or `bun@latest`. If not provided, version will default to `latest`.
 
