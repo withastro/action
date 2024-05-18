@@ -16,6 +16,10 @@ inputs:
     description: "Path of the directory containing your site"
     required: false
     default: "."
+  skip-artifact:
+    description: "Skip uploading the artifacts"
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -93,5 +97,6 @@ runs:
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v3
+      if: ${{ inputs.skip-artifact != 'true' }}
       with:
         path: "${{ inputs.path }}/dist/"
