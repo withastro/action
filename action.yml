@@ -29,7 +29,7 @@ runs:
         len=`echo $INPUT_PM | wc -c`
         if [ $len -gt 1 ]; then
           PACKAGE_MANAGER=$(echo "$INPUT_PM" | grep -o '^[^@]*')
-          VERSION=$(echo "$INPUT_PM" | grep -o '@.*' || true | sed 's/^@//')
+          VERSION=$(echo "$INPUT_PM" | { grep -o '@.*' || true; } | sed 's/^@//')
           # Set default VERSION if not provided
           if [ -z "$VERSION" ]; then
               VERSION="latest"
