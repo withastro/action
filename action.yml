@@ -57,7 +57,7 @@ runs:
         echo "VERSION=$VERSION" >> $GITHUB_ENV
     - name: Setup PNPM
       if: ${{ env.PACKAGE_MANAGER == 'pnpm' }}
-      uses: pnpm/action-setup@v3
+      uses: pnpm/action-setup@v4
       with:
         version: ${{ env.VERSION }}
         package_json_file: "${{ inputs.path }}/package.json"
