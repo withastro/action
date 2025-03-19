@@ -11,7 +11,7 @@ For more information, please see our complete deployment guide—[Deploy your As
 ### Inputs
 
 - `path` - Optional: the root location of your Astro project inside the repository.
-- `node-version` - Optional: the specific version of Node that should be used to build your site. Defaults to `20`.
+- `node-version` - Optional: the specific version of Node that should be used to build your site. Defaults to `22`.
 - `package-manager` - Optional: the Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. Accepted values: `npm`, `yarn`, `pnpm`, and `bun`. A version tag is also accepted, for example `npm@18.14.1`, `pnpm@8`, or `bun@latest`. If not provided, version will default to `latest`.
 
 ### Example workflow:
@@ -47,7 +47,7 @@ jobs:
         uses: withastro/action@v2
         # with:
             # path: . # The root location of your Astro project inside the repository. (optional)
-            # node-version: 20 # The specific version of Node that should be used to build your site. Defaults to 18. (optional)
+            # node-version: 22 # The specific version of Node that should be used to build your site. Defaults to 18. (optional)
             # package-manager: pnpm@latest # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
 
   deploy:
