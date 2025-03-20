@@ -47,7 +47,7 @@ jobs:
         uses: withastro/action@v2
         # with:
             # path: . # The root location of your Astro project inside the repository. (optional)
-            # node-version: 22 # The specific version of Node that should be used to build your site. Defaults to 18. (optional)
+            # node-version: 22 # The specific version of Node that should be used to build your site. Defaults to 22. (optional)
             # package-manager: pnpm@latest # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
 
   deploy:
