@@ -94,7 +94,7 @@ runs:
     - name: Build
       shell: "bash"
       working-directory: ${{ inputs.path }}
-      run: $PACKAGE_MANAGER run build
+      run: $PACKAGE_MANAGER run astro build
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v3
