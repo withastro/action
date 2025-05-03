@@ -1,0 +1,3 @@
+strategy:
+  matrix:
+    pm: [deno, pnpm]

@@ -16,6 +16,10 @@ inputs:
     description: "Path of the directory containing your site"
     required: false
     default: "."
+  deno-version:
+    description: "The Deno version to use when deno.json/deno.jsonc/deno.lock exists"
+    required: false
+    default: "1.x"
 
 runs:
   using: composite
@@ -53,6 +57,10 @@ runs:
             VERSION="latest"
             echo "PACKAGE_MANAGER=bun" >> $GITHUB_ENV
             echo "LOCKFILE=bun.lockb" >> $GITHUB_ENV
+        elif [ -f "deno.json" ] || [ -f "deno.jsonc" ] || [ -f "deno.lock" ]; then
+            VERSION="${{ inputs.deno-version }}"
+            echo "PACKAGE_MANAGER=deno" >> $GITHUB_ENV
+            echo "LOCKFILE=deno.lock"   >> $GITHUB_ENV
         else
             echo "No lockfile found.
         Please specify your preferred \"package-manager\" in the action configuration."
@@ -72,9 +80,15 @@ runs:
       with:
         bun-version: ${{ env.VERSION }}
 
+    - name: Setup Deno
+      if: ${{ env.PACKAGE_MANAGER == 'deno' }}
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ env.VERSION }}
+
     - name: Setup Node
       uses: actions/setup-node@v4
-      if: ${{ env.PACKAGE_MANAGER != 'bun' }}
+      if: ${{ env.PACKAGE_MANAGER != 'bun' && env.PACKAGE_MANAGER != 'deno' }}
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
@@ -86,17 +100,26 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
-    - name: Install
-      shell: "bash"
+    - name: Install (npm/yarn/pnpm)
+      if: ${{ env.PACKAGE_MANAGER != 'deno' }}
+      shell: bash
       working-directory: ${{ inputs.path }}
       run: $PACKAGE_MANAGER install
 
-    - name: Build
-      shell: "bash"
+    - name: Cache deps & vendor (Deno)
+      if: ${{ env.PACKAGE_MANAGER == 'deno' }}
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      run: deno task _prepare
+
+    - name: Build (npm/yarn/pnpm/bun)
+      if: ${{ env.PACKAGE_MANAGER != 'deno' }}
+      shell: bash
       working-directory: ${{ inputs.path }}
       run: $PACKAGE_MANAGER run build
 
-    - name: Upload Pages Artifact
-      uses: actions/upload-pages-artifact@v3
-      with:
-        path: "${{ inputs.path }}/dist/"
+    - name: Build (Deno)
+      if: ${{ env.PACKAGE_MANAGER == 'deno' }}
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      run: deno task build
