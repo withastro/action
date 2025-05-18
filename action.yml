@@ -20,6 +20,10 @@ inputs:
     description: "The Deno version to use when deno.json/deno.jsonc/deno.lock exists"
     required: false
     default: "1.x"
+  deno-setup-task:
+    description: "Name of the optional Deno task to run before build (will be skipped if undefined)"
+    required: false
+    default: "setup"
 
 runs:
   using: composite
@@ -110,7 +114,7 @@ runs:
       if: ${{ env.PACKAGE_MANAGER == 'deno' }}
       shell: bash
       working-directory: ${{ inputs.path }}
-      run: deno task _prepare
+      run: deno task ${{ inputs.deno-setup-task }} || echo "No deno ${{ inputs.deno-setup-task }} task defined - skipping"
 
     - name: Build (npm/yarn/pnpm/bun)
       if: ${{ env.PACKAGE_MANAGER != 'deno' }}
