@@ -39,7 +39,7 @@ runs:
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
             echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
             # If packageManager field is not present, use latest version.
-            if ! grep -q "\"packageManager\":"  package.json; then
+            if ! jq -e '.packageManager' package.json > /dev/null 2>&1; then
                 VERSION="latest"
                 # Annotate this action run to let users know we’re using the default.
                 echo "::warning title=Could not detect PNPM version::No \`packageManager\` field found in \`package.json\`. Using latest PNPM version instead. We recommend specifying \`pnpm@VERSION\` explicitly using the \`packageManager\` field in your \`package.json\`."
