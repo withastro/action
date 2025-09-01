@@ -9,21 +9,13 @@ inputs:
     required: false
     default: "22"
   package-manager:
-    description: "You may specify your preferred package manager (one of `npm | yarn | pnpm | bun` and an optional `@<version>` tag). Otherwise, the package manager will be automatically detected."
+    description: "You may specify your preferred package manager (one of `npm | yarn | pnpm | bun | deno` and an optional `@<version>` tag). Otherwise, the package manager will be automatically detected."
     required: false
     default: ""
   path:
     description: "Path of the directory containing your site"
     required: false
     default: "."
-  deno-version:
-    description: "The Deno version to use when deno.json/deno.jsonc/deno.lock exists"
-    required: false
-    default: "1.x"
-  deno-setup-task:
-    description: "Name of the optional Deno task to run before build (will be skipped if undefined)"
-    required: false
-    default: "setup"
 
 runs:
   using: composite
@@ -40,9 +32,17 @@ runs:
           VERSION=$(echo "$INPUT_PM" | { grep -o '@.*' || true; } | sed 's/^@//')
           # Set default VERSION if not provided
           if [ -z "$VERSION" ]; then
-              VERSION="latest"
+              if [ "$PACKAGE_MANAGER" = "deno" ]; then
+                  VERSION="1.x"
+              else
+                  VERSION="latest"
+              fi
           fi
           echo "PACKAGE_MANAGER=$PACKAGE_MANAGER" >> $GITHUB_ENV
+          # Set lockfile for deno when explicitly specified
+          if [ "$PACKAGE_MANAGER" = "deno" ]; then
+              echo "LOCKFILE=deno.lock" >> $GITHUB_ENV
+          fi
         elif [ $(find "." -maxdepth 1 -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
             echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
@@ -62,9 +62,9 @@ runs:
             echo "PACKAGE_MANAGER=bun" >> $GITHUB_ENV
             echo "LOCKFILE=bun.lockb" >> $GITHUB_ENV
         elif [ -f "deno.json" ] || [ -f "deno.jsonc" ] || [ -f "deno.lock" ]; then
-            VERSION="${{ inputs.deno-version }}"
+            VERSION="1.x"
             echo "PACKAGE_MANAGER=deno" >> $GITHUB_ENV
-            echo "LOCKFILE=deno.lock"   >> $GITHUB_ENV
+            echo "LOCKFILE=deno.lock" >> $GITHUB_ENV
         else
             echo "No lockfile found.
         Please specify your preferred \"package-manager\" in the action configuration."
@@ -104,17 +104,25 @@ runs:
       with:
         node-version: ${{ inputs.node-version }}
 
-    - name: Install (npm/yarn/pnpm)
-      if: ${{ env.PACKAGE_MANAGER != 'deno' }}
+    - name: Install
       shell: bash
       working-directory: ${{ inputs.path }}
-      run: $PACKAGE_MANAGER install
-
-    - name: Cache deps & vendor (Deno)
-      if: ${{ env.PACKAGE_MANAGER == 'deno' }}
-      shell: bash
-      working-directory: ${{ inputs.path }}
-      run: deno task ${{ inputs.deno-setup-task }} || echo "No deno ${{ inputs.deno-setup-task }} task defined - skipping"
+      run: |
+        if [ "$PACKAGE_MANAGER" = "deno" ]; then
+          # For Deno projects with deno.json, cache dependencies
+          if [ -f "deno.json" ] || [ -f "deno.jsonc" ]; then
+            echo "Caching Deno dependencies..."
+            deno cache --lock=deno.lock --lock-write **/*.ts **/*.tsx 2>/dev/null || true
+          fi
+          # For hybrid projects with package.json, install npm dependencies
+          if [ -f "package.json" ]; then
+            echo "Installing npm dependencies with Deno..."
+            deno install --allow-scripts
+          fi
+        else
+          # Standard package manager install
+          $PACKAGE_MANAGER install
+        fi
 
     - name: Build (npm/yarn/pnpm/bun)
       if: ${{ env.PACKAGE_MANAGER != 'deno' }}
@@ -127,3 +135,8 @@ runs:
       shell: bash
       working-directory: ${{ inputs.path }}
       run: deno task build
+
+    - name: Upload Pages Artifact
+      uses: actions/upload-pages-artifact@v3
+      with:
+        path: "${{ inputs.path }}/dist/"
