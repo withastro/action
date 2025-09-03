@@ -63,7 +63,7 @@ runs:
             echo "PACKAGE_MANAGER=bun" >> $GITHUB_ENV
             echo "LOCKFILE=bun.lockb" >> $GITHUB_ENV
         elif [ -f "deno.json" ] || [ -f "deno.jsonc" ] || [ -f "deno.lock" ]; then
-            VERSION="1.x"
+            VERSION="vx.x.x"
             echo "PACKAGE_MANAGER=deno" >> $GITHUB_ENV
             echo "LOCKFILE=deno.lock" >> $GITHUB_ENV
         else
