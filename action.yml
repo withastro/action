@@ -33,7 +33,8 @@ runs:
           # Set default VERSION if not provided
           if [ -z "$VERSION" ]; then
               if [ "$PACKAGE_MANAGER" = "deno" ]; then
-                  VERSION="1.x"
+                  # The denoland/setup-deno action equivalent of "latest"
+                  VERSION="vx.x.x"
               else
                   VERSION="latest"
               fi
