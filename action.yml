@@ -40,10 +40,6 @@ runs:
               fi
           fi
           echo "PACKAGE_MANAGER=$PACKAGE_MANAGER" >> $GITHUB_ENV
-          # Set lockfile for deno when explicitly specified
-          if [ "$PACKAGE_MANAGER" = "deno" ]; then
-              echo "LOCKFILE=deno.lock" >> $GITHUB_ENV
-          fi
         elif [ $(find "." -maxdepth 1 -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
             echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
