@@ -16,6 +16,10 @@ inputs:
     description: "Path of the directory containing your site"
     required: false
     default: "."
+  build-cmd:
+    description: "The command used to build your site"
+    required: false
+    default:
 
 runs:
   using: composite
@@ -131,13 +135,13 @@ runs:
       if: ${{ env.PACKAGE_MANAGER != 'deno' }}
       shell: bash
       working-directory: ${{ inputs.path }}
-      run: $PACKAGE_MANAGER run build
+      run: ${{ inputs.build-cmd || '$PACKAGE_MANAGER run build' }}
 
     - name: Build (Deno)
       if: ${{ env.PACKAGE_MANAGER == 'deno' }}
       shell: bash
       working-directory: ${{ inputs.path }}
-      run: deno task build
+      run: ${{ inputs.build-cmd || 'deno task build' }}
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v3
