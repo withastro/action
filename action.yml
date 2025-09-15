@@ -19,7 +19,7 @@ inputs:
   build-cmd:
     description: "The command used to build your site"
     required: false
-    default: ""
+    default:
 
 runs:
   using: composite
