@@ -9,7 +9,7 @@ inputs:
     required: false
     default: "22"
   package-manager:
-    description: "You may specify your preferred package manager (one of `npm | yarn | pnpm | bun` and an optional `@<version>` tag). Otherwise, the package manager will be automatically detected."
+    description: "You may specify your preferred package manager (one of `npm | yarn | pnpm | bun | deno` and an optional `@<version>` tag). Otherwise, the package manager will be automatically detected."
     required: false
     default: ""
   path:
@@ -36,12 +36,23 @@ runs:
           VERSION=$(echo "$INPUT_PM" | { grep -o '@.*' || true; } | sed 's/^@//')
           # Set default VERSION if not provided
           if [ -z "$VERSION" ]; then
-              VERSION="latest"
+              if [ "$PACKAGE_MANAGER" = "deno" ]; then
+                  # The denoland/setup-deno action equivalent of "latest"
+                  VERSION="vx.x.x"
+              else
+                  VERSION="latest"
+              fi
           fi
           echo "PACKAGE_MANAGER=$PACKAGE_MANAGER" >> $GITHUB_ENV
         elif [ $(find "." -maxdepth 1 -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
             echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
+            # If packageManager field is not present, use latest version.
+            if ! jq -e '.packageManager' package.json > /dev/null 2>&1; then
+                VERSION="latest"
+                # Annotate this action run to let users know we’re using the default.
+                echo "::warning title=Could not detect PNPM version::No \`packageManager\` field found in \`package.json\`. Using latest PNPM version instead. We recommend specifying \`pnpm@VERSION\` explicitly using the \`packageManager\` field in your \`package.json\`."
+            fi
         elif [ $(find "." -maxdepth 1 -name "yarn.lock") ]; then
             echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
             echo "LOCKFILE=yarn.lock" >> $GITHUB_ENV
@@ -57,6 +68,10 @@ runs:
             VERSION="latest"
             echo "PACKAGE_MANAGER=bun" >> $GITHUB_ENV
             echo "LOCKFILE=bun.lockb" >> $GITHUB_ENV
+        elif [ -f "deno.json" ] || [ -f "deno.jsonc" ] || [ -f "deno.lock" ]; then
+            VERSION="vx.x.x"
+            echo "PACKAGE_MANAGER=deno" >> $GITHUB_ENV
+            echo "LOCKFILE=deno.lock" >> $GITHUB_ENV
         else
             echo "No lockfile found.
         Please specify your preferred \"package-manager\" in the action configuration."
@@ -76,9 +91,15 @@ runs:
       with:
         bun-version: ${{ env.VERSION }}
 
+    - name: Setup Deno
+      if: ${{ env.PACKAGE_MANAGER == 'deno' }}
+      uses: denoland/setup-deno@v2
+      with:
+        deno-version: ${{ env.VERSION }}
+
     - name: Setup Node
       uses: actions/setup-node@v4
-      if: ${{ env.PACKAGE_MANAGER != 'bun' }}
+      if: ${{ env.PACKAGE_MANAGER != 'bun' && env.PACKAGE_MANAGER != 'deno' }}
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
@@ -91,14 +112,36 @@ runs:
         node-version: ${{ inputs.node-version }}
 
     - name: Install
-      shell: "bash"
+      shell: bash
       working-directory: ${{ inputs.path }}
-      run: $PACKAGE_MANAGER install
+      run: |
+        if [ "$PACKAGE_MANAGER" = "deno" ]; then
+          # For Deno projects with deno.json, cache dependencies
+          if [ -f "deno.json" ] || [ -f "deno.jsonc" ]; then
+            echo "Caching Deno dependencies..."
+            deno cache --lock=deno.lock --lock-write **/*.ts **/*.tsx 2>/dev/null || true
+          fi
+          # For hybrid projects with package.json, install npm dependencies
+          if [ -f "package.json" ]; then
+            echo "Installing npm dependencies with Deno..."
+            deno install --allow-scripts
+          fi
+        else
+          # Standard package manager install
+          $PACKAGE_MANAGER install
+        fi
 
-    - name: Build
-      shell: "bash"
+    - name: Build (npm/yarn/pnpm/bun)
+      if: ${{ env.PACKAGE_MANAGER != 'deno' }}
+      shell: bash
       working-directory: ${{ inputs.path }}
       run: ${{ inputs.build-cmd }}
+
+    - name: Build (Deno)
+      if: ${{ env.PACKAGE_MANAGER == 'deno' }}
+      shell: bash
+      working-directory: ${{ inputs.path }}
+      run: deno task build
 
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@v3
