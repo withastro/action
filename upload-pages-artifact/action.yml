@@ -1,4 +1,9 @@
 # Copied from: https://github.com/actions/upload-pages-artifact/blob/7b1f4a764d45c48632c6b24a0339c27f5614fb0b/action.yml
+# Due to https://github.com/actions/upload-pages-artifact/issues/129
+# We have removed
+#   --exclude=".[^/]*" \
+# From each tar command, to allow for hidden files, such as the `.well-known` directory
+# We can get rid of this if / once Github supports a hidden files flag
 
 name: "Upload GitHub Pages artifact"
 description: "A composite action that prepares your static assets to be deployed to GitHub Pages"
@@ -34,7 +39,6 @@ runs:
           -cvf "$RUNNER_TEMP/artifact.tar" \
           --exclude=.git \
           --exclude=.github \
-          --exclude=".[^/]*" \
           .
         echo ::endgroup::
       env:
@@ -52,7 +56,6 @@ runs:
           -cvf "$RUNNER_TEMP/artifact.tar" \
           --exclude=.git \
           --exclude=.github \
-          --exclude=".[^/]*" \
           .
         echo ::endgroup::
       env:
@@ -70,7 +73,6 @@ runs:
           -cvf "$RUNNER_TEMP\artifact.tar" \
           --exclude=.git \
           --exclude=.github \
-          --exclude=".[^/]*" \
           --force-local \
           "."
         echo ::endgroup::
