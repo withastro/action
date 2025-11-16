@@ -143,7 +143,67 @@ runs:
       working-directory: ${{ inputs.path }}
       run: ${{ inputs.build-cmd || 'deno task build' }}
 
-    - name: Upload Pages Artifact
-      uses: ./upload-pages-artifact
+    # Copied from: https://github.com/actions/upload-pages-artifact/blob/7b1f4a764d45c48632c6b24a0339c27f5614fb0b/action.yml
+    # Due to https://github.com/actions/upload-pages-artifact/issues/129
+    # We have removed
+    #   --exclude=".[^/]*" \
+    # From each tar command, to allow for hidden files, such as the `.well-known` directory
+    # We can get rid of this if / once Github supports a hidden files flag
+
+    - name: Archive artifact
+      shell: sh
+      if: runner.os == 'Linux'
+      run: |
+        echo ::group::Archive artifact
+        tar \
+          --dereference --hard-dereference \
+          --directory "$INPUT_PATH" \
+          -cvf "$RUNNER_TEMP/artifact.tar" \
+          --exclude=.git \
+          --exclude=.github \
+          .
+        echo ::endgroup::
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+
+    - name: Archive artifact
+      shell: sh
+      if: runner.os == 'macOS'
+      run: |
+        echo ::group::Archive artifact
+        gtar \
+          --dereference --hard-dereference \
+          --directory "$INPUT_PATH" \
+          -cvf "$RUNNER_TEMP/artifact.tar" \
+          --exclude=.git \
+          --exclude=.github \
+          .
+        echo ::endgroup::
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+
+    - name: Archive artifact
+      shell: bash
+      if: runner.os == 'Windows'
+      run: |
+        echo ::group::Archive artifact
+        tar \
+          --dereference --hard-dereference \
+          --directory "$INPUT_PATH" \
+          -cvf "$RUNNER_TEMP\artifact.tar" \
+          --exclude=.git \
+          --exclude=.github \
+          --force-local \
+          "."
+        echo ::endgroup::
+      env:
+        INPUT_PATH: ${{ inputs.path }}
+
+    - name: Upload artifact
+      id: upload-artifact
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
+        name: "github-pages"
         path: "${{ inputs.path }}/dist/"
+        retention-days: 1
+        if-no-files-found: error
