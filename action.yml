@@ -164,7 +164,7 @@ runs:
           .
         echo ::endgroup::
       env:
-        INPUT_PATH: ${{ inputs.path }}
+        INPUT_PATH: ${{ inputs.path }}/dist/
 
     - name: Archive artifact
       shell: sh
@@ -180,7 +180,7 @@ runs:
           .
         echo ::endgroup::
       env:
-        INPUT_PATH: ${{ inputs.path }}
+        INPUT_PATH: ${{ inputs.path }}/dist/
 
     - name: Archive artifact
       shell: bash
@@ -197,13 +197,13 @@ runs:
           "."
         echo ::endgroup::
       env:
-        INPUT_PATH: ${{ inputs.path }}
+        INPUT_PATH: ${{ inputs.path }}/dist/
 
     - name: Upload artifact
       id: upload-artifact
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
       with:
-        name: "github-pages"
-        path: "${{ inputs.path }}/dist/"
+        name: github-pages
+        path: ${{ runner.temp }}/artifact.tar
         retention-days: 1
         if-no-files-found: error
