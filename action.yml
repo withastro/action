@@ -84,7 +84,7 @@ runs:
       with:
         version: ${{ env.VERSION }}
         package_json_file: "${{ inputs.path }}/package.json"
-    
+
     - name: Setup Bun
       if: ${{ env.PACKAGE_MANAGER == 'bun' }}
       uses: oven-sh/setup-bun@735343b667d3e6f658f44d0eca948eb6282f2b76 # v2.0.2
@@ -104,7 +104,7 @@ runs:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
         cache-dependency-path: "${{ inputs.path }}/${{ env.LOCKFILE }}"
-    
+
     - name: Setup Node (Bun)
       uses: actions/setup-node@2028fbc5c25fe9cf00d9f06a71cc4710d4507903 # v6.0.0
       if: ${{ env.PACKAGE_MANAGER == 'bun' }}
@@ -144,6 +144,6 @@ runs:
       run: ${{ inputs.build-cmd || 'deno task build' }}
 
     - name: Upload Pages Artifact
-      uses: actions/upload-pages-artifact@56afc609e74202658d3ffba0e8f6dda462b719fa # v3.0.1
+      uses: ./upload-pages-artifact
       with:
         path: "${{ inputs.path }}/dist/"
