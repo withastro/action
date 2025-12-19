@@ -14,6 +14,8 @@ For more information, please see our complete deployment guide—[Deploy your As
 - `node-version` - Optional: the specific version of Node that should be used to build your site. Defaults to `22`.
 - `package-manager` - Optional: the Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. Accepted values: `npm`, `yarn`, `pnpm`, `bun`, and `deno`. A version tag is also accepted, for example `npm@11.6.2`, `pnpm@10`, `bun@latest`, or `deno@v2.x`. If not provided, version will default to `latest`.
 - `build-cmd` - Optional: the command to run to build your site. Defaults to `deno task build` for sites using Deno and to `<package-manager> run build` for all other package managers.
+- `cache` - Optional: enable Astro build cache to speed up subsequent builds. Caches optimized images and other build assets. Defaults to `true`.
+- `cache-dir` - Optional: path to the Astro cache directory (relative to `path`). Defaults to `node_modules/.astro`. Only used when `cache` is `true`.
 
 ### Example workflow:
 

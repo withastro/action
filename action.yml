@@ -20,6 +20,14 @@ inputs:
     description: "The command used to build your site"
     required: false
     default:
+  cache:
+    description: "Enable Astro cache to speed up subsequent builds (caches optimized images and other assets)"
+    required: false
+    default: "true"
+  cache-dir:
+    description: "Path to the Astro cache directory (relative to 'path' input). Defaults to 'node_modules/.astro'"
+    required: false
+    default: "node_modules/.astro"
 
 runs:
   using: composite
@@ -131,6 +139,16 @@ runs:
           $PACKAGE_MANAGER install
         fi
 
+    - name: Restore Astro cache
+      if: ${{ inputs.cache == 'true' }}
+      id: astro-cache-restore
+      uses: actions/cache/restore@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: ${{ inputs.path }}/${{ inputs.cache-dir }}
+        key: astro-cache-${{ runner.os }}-${{ github.sha }}
+        restore-keys: |
+          astro-cache-${{ runner.os }}-
+
     - name: Build (npm/yarn/pnpm/bun)
       if: ${{ env.PACKAGE_MANAGER != 'deno' }}
       shell: bash
@@ -142,6 +160,13 @@ runs:
       shell: bash
       working-directory: ${{ inputs.path }}
       run: ${{ inputs.build-cmd || 'deno task build' }}
+
+    - name: Save Astro cache
+      if: ${{ inputs.cache == 'true' && steps.astro-cache-restore.outputs.cache-hit != 'true' }}
+      uses: actions/cache/save@9255dc7a253b0ccc959486e2bca901246202afeb # v5.0.1
+      with:
+        path: ${{ inputs.path }}/${{ inputs.cache-dir }}
+        key: ${{ steps.astro-cache-restore.outputs.cache-primary-key }}
 
     # Copied from: https://github.com/actions/upload-pages-artifact/blob/7b1f4a764d45c48632c6b24a0339c27f5614fb0b/action.yml
     # Due to https://github.com/actions/upload-pages-artifact/issues/129
