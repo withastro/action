@@ -16,6 +16,7 @@ For more information, please see our complete deployment guide—[Deploy your As
 - `build-cmd` - Optional: the command to run to build your site. Defaults to `deno task build` for sites using Deno and to `<package-manager> run build` for all other package managers.
 - `cache` - Optional: enable Astro build cache to speed up subsequent builds. Caches optimized images and other build assets. Defaults to `true`.
 - `cache-dir` - Optional: path to the Astro cache directory (relative to `path`). Defaults to `node_modules/.astro`. Only used when `cache` is `true`.
+- `output-dir` - Optional: path to the Astro output directory, as created by build (relative to `path`). Defaults to `dist`. This directory is artifacted by this action.
 
 ### Example workflow:
 
@@ -53,6 +54,7 @@ jobs:
             # node-version: 22 # The specific version of Node that should be used to build your site. Defaults to 22. (optional)
             # package-manager: pnpm@latest # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
             # build-cmd: pnpm run build # The command to run to build your site. Runs the package build script/task by default. (optional)
+            # output-dir: www # the created directory by the build command (in this example 'www'), if different from dist
 
   deploy:
     needs: build

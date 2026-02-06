@@ -28,6 +28,10 @@ inputs:
     description: "Path to the Astro cache directory (relative to 'path' input). Defaults to 'node_modules/.astro'"
     required: false
     default: "node_modules/.astro"
+  output-dir:
+    description: "Path to the output build directory (relative to 'path' input). Defaults to 'dist'"
+    required: false
+    default: "dist"
 
 runs:
   using: composite
@@ -189,7 +193,7 @@ runs:
           .
         echo ::endgroup::
       env:
-        INPUT_PATH: ${{ inputs.path }}/dist/
+        INPUT_PATH: ${{ inputs.path }}/${{ inputs.output-dir }}/
 
     - name: Archive artifact
       shell: sh
@@ -205,7 +209,7 @@ runs:
           .
         echo ::endgroup::
       env:
-        INPUT_PATH: ${{ inputs.path }}/dist/
+        INPUT_PATH: ${{ inputs.path }}/${{ inputs.output-dir }}/
 
     - name: Archive artifact
       shell: bash
@@ -222,7 +226,7 @@ runs:
           "."
         echo ::endgroup::
       env:
-        INPUT_PATH: ${{ inputs.path }}/dist/
+        INPUT_PATH: ${{ inputs.path }}/${{ inputs.output-dir }}/
 
     - name: Upload artifact
       id: upload-artifact
