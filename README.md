@@ -11,7 +11,7 @@ For more information, please see our complete deployment guide—[Deploy your As
 ### Inputs
 
 - `path` - Optional: the root location of your Astro project inside the repository.
-- `node-version` - Optional: the specific version of Node that should be used to build your site. Defaults to `22`.
+- `node-version` - Optional: the specific version of Node that should be used to build your site. Defaults to `24`.
 - `package-manager` - Optional: the Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. Accepted values: `npm`, `yarn`, `pnpm`, `bun`, and `deno`. A version tag is also accepted, for example `npm@11.6.2`, `pnpm@10`, `bun@latest`, or `deno@v2.x`. If not provided, version will default to `latest`.
 - `build-cmd` - Optional: the command to run to build your site. Defaults to `deno task build` for sites using Deno and to `<package-manager> run build` for all other package managers.
 - `cache` - Optional: enable Astro build cache to speed up subsequent builds. Caches optimized images and other build assets. Defaults to `true`.
@@ -51,7 +51,7 @@ jobs:
         uses: withastro/action@v5
         # with:
             # path: . # The root location of your Astro project inside the repository. (optional)
-            # node-version: 22 # The specific version of Node that should be used to build your site. Defaults to 22. (optional)
+            # node-version: 24 # The specific version of Node that should be used to build your site. Defaults to 24. (optional)
             # package-manager: pnpm@latest # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
             # build-cmd: pnpm run build # The command to run to build your site. Runs the package build script/task by default. (optional)
             # out-dir: dist # The output directory created by the build command. Defaults to dist. (optional)
