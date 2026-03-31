@@ -173,6 +173,7 @@ runs:
         key: ${{ steps.astro-cache-restore.outputs.cache-primary-key }}
 
     - name: Upload Pages Artifact
-      uses: actions/upload-pages-artifact@7b1f4a764d45c48632c6b24a0339c27f5614fb0b # v4.0.0
+      uses: actions/upload-pages-artifact@0ca16172ca884f0a37117fed41734f29784cc980 # main
       with:
         path: "${{ inputs.path }}/dist/"
+        include-hidden-files: true
