@@ -175,5 +175,5 @@ runs:
     - name: Upload Pages Artifact
       uses: actions/upload-pages-artifact@0ca16172ca884f0a37117fed41734f29784cc980 # main
       with:
-        path: "${{ inputs.path }}/dist/"
+        path: "${{ inputs.path }}/${{ inputs.out-dir }}/"
         include-hidden-files: true
