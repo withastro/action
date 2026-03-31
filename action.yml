@@ -172,67 +172,9 @@ runs:
         path: ${{ inputs.path }}/${{ inputs.cache-dir }}
         key: ${{ steps.astro-cache-restore.outputs.cache-primary-key }}
 
-    # Copied from: https://github.com/actions/upload-pages-artifact/blob/7b1f4a764d45c48632c6b24a0339c27f5614fb0b/action.yml
-    # Due to https://github.com/actions/upload-pages-artifact/issues/129
-    # We have removed
-    #   --exclude=".[^/]*" \
-    # From each tar command, to allow for hidden files, such as the `.well-known` directory
-    # We can get rid of this if / once Github supports a hidden files flag
-
-    - name: Archive artifact
-      shell: sh
-      if: runner.os == 'Linux'
-      run: |
-        echo ::group::Archive artifact
-        tar \
-          --dereference --hard-dereference \
-          --directory "$INPUT_PATH" \
-          -cvf "$RUNNER_TEMP/artifact.tar" \
-          --exclude=.git \
-          --exclude=.github \
-          .
-        echo ::endgroup::
-      env:
-        INPUT_PATH: ${{ inputs.path }}/${{ inputs.out-dir }}/
-
-    - name: Archive artifact
-      shell: sh
-      if: runner.os == 'macOS'
-      run: |
-        echo ::group::Archive artifact
-        gtar \
-          --dereference --hard-dereference \
-          --directory "$INPUT_PATH" \
-          -cvf "$RUNNER_TEMP/artifact.tar" \
-          --exclude=.git \
-          --exclude=.github \
-          .
-        echo ::endgroup::
-      env:
-        INPUT_PATH: ${{ inputs.path }}/${{ inputs.out-dir }}/
-
-    - name: Archive artifact
-      shell: bash
-      if: runner.os == 'Windows'
-      run: |
-        echo ::group::Archive artifact
-        tar \
-          --dereference --hard-dereference \
-          --directory "$INPUT_PATH" \
-          -cvf "$RUNNER_TEMP\artifact.tar" \
-          --exclude=.git \
-          --exclude=.github \
-          --force-local \
-          "."
-        echo ::endgroup::
-      env:
-        INPUT_PATH: ${{ inputs.path }}/${{ inputs.out-dir }}/
-
-    - name: Upload artifact
-      id: upload-artifact
-      uses: actions/upload-artifact@bbbca2ddaa5d8feaa63e36b76fdaad77386f024f # v7.0.0
+    - name: Upload Pages Artifact
+      # The change adding include-hidden-files hasn’t been tagged yet, so this is pinned to the commit on main instead.
+      uses: actions/upload-pages-artifact@0ca16172ca884f0a37117fed41734f29784cc980 # main
       with:
-        name: github-pages
-        path: ${{ runner.temp }}/artifact.tar
-        retention-days: 1
-        if-no-files-found: error
+        path: "${{ inputs.path }}/${{ inputs.out-dir }}/"
+        include-hidden-files: true
