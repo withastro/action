@@ -56,6 +56,20 @@ runs:
               fi
           fi
           echo "PACKAGE_MANAGER=$PACKAGE_MANAGER" >> $GITHUB_ENV
+          case "$PACKAGE_MANAGER" in
+            yarn) LOCKFILE="yarn.lock" ;;
+            npm)  LOCKFILE="package-lock.json" ;;
+            pnpm) LOCKFILE="pnpm-lock.yaml" ;;
+            bun)  [ -f "bun.lock" ] && LOCKFILE="bun.lock" || LOCKFILE="bun.lockb" ;;
+            deno) LOCKFILE="deno.lock" ;;
+          esac
+          if [ -n "$LOCKFILE" ]; then
+            if [ -f "$LOCKFILE" ]; then
+              echo "LOCKFILE=$LOCKFILE" >> $GITHUB_ENV
+            else
+              echo "::warning title=Lockfile not found::No \`$LOCKFILE\` found; node_modules caching will be skipped."
+            fi
+          fi
         elif [ $(find "." -maxdepth 1 -name "pnpm-lock.yaml") ]; then
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
             echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
@@ -109,13 +123,21 @@ runs:
       with:
         deno-version: ${{ env.VERSION }}
 
-    - name: Setup Node
+    - name: Setup Node (with lockfile cache)
       uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
-      if: ${{ env.PACKAGE_MANAGER != 'bun' && env.PACKAGE_MANAGER != 'deno' }}
+      if: ${{ env.PACKAGE_MANAGER != 'bun' && env.PACKAGE_MANAGER != 'deno' && env.LOCKFILE != '' }}
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
         cache-dependency-path: "${{ inputs.path }}/${{ env.LOCKFILE }}"
+
+    - name: Setup Node (without lockfile cache)
+      uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      if: ${{ env.PACKAGE_MANAGER != 'bun' && env.PACKAGE_MANAGER != 'deno' && env.LOCKFILE == '' }}
+      with:
+        node-version: ${{ inputs.node-version }}
+        cache:
+        package-manager-cache: false
 
     - name: Setup Node (Bun)
       uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
