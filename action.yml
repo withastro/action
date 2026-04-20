@@ -173,8 +173,7 @@ runs:
         key: ${{ steps.astro-cache-restore.outputs.cache-primary-key }}
 
     - name: Upload Pages Artifact
-      # The change adding include-hidden-files hasn’t been tagged yet, so this is pinned to the commit on main instead.
-      uses: actions/upload-pages-artifact@0ca16172ca884f0a37117fed41734f29784cc980 # main
+      uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5
       with:
         path: "${{ inputs.path }}/${{ inputs.out-dir }}/"
         include-hidden-files: true
