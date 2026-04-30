@@ -17,6 +17,8 @@ For more information, please see our complete deployment guide—[Deploy your As
 - `cache` - Optional: enable Astro build cache to speed up subsequent builds. Caches optimized images and other build assets. Defaults to `true`.
 - `cache-dir` - Optional: path to the Astro cache directory (relative to `path`). Defaults to `node_modules/.astro`. Only used when `cache` is `true`.
 - `out-dir` - Optional: path to the Astro output directory, as created by build (relative to `path`). Defaults to `dist`. This directory is artifacted by this action.
+- `artifact-name` - Optional: name of the artifact to be created for GitHub Pages deployment. Defaults to 'github-pages'.
+
 
 ### Example workflow:
 
@@ -55,6 +57,7 @@ jobs:
             # package-manager: pnpm@latest # The Node package manager that should be used to install dependencies and build your site. Automatically detected based on your lockfile. (optional)
             # build-cmd: pnpm run build # The command to run to build your site. Runs the package build script/task by default. (optional)
             # out-dir: dist # The output directory created by the build command. Defaults to dist. (optional)
+            # artifact-name: github-pages # The name of the artifact to be created for GitHub Pages deployment. (optional)
 
   deploy:
     needs: build
