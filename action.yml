@@ -92,7 +92,7 @@ runs:
         echo "VERSION=$VERSION" >> $GITHUB_ENV
     - name: Setup PNPM
       if: ${{ env.PACKAGE_MANAGER == 'pnpm' }}
-      uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v5.0.0
+      uses: pnpm/action-setup@0ebf47130e4866e96fce0953f49152a61190b271 # v6.0.9
       with:
         version: ${{ env.VERSION }}
         package_json_file: "${{ inputs.path }}/package.json"
@@ -105,12 +105,12 @@ runs:
 
     - name: Setup Deno
       if: ${{ env.PACKAGE_MANAGER == 'deno' }}
-      uses: denoland/setup-deno@e95548e56dfa95d4e1a28d6f422fafe75c4c26fb # v2.0.3
+      uses: denoland/setup-deno@22d081ff2d3a40755e97629de92e3bcbfa7cf2ed # v2.0.5
       with:
         deno-version: ${{ env.VERSION }}
 
     - name: Setup Node
-      uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
       if: ${{ env.PACKAGE_MANAGER != 'bun' && env.PACKAGE_MANAGER != 'deno' }}
       with:
         node-version: ${{ inputs.node-version }}
@@ -118,7 +118,7 @@ runs:
         cache-dependency-path: "${{ inputs.path }}/${{ env.LOCKFILE }}"
 
     - name: Setup Node (Bun)
-      uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
+      uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
       if: ${{ env.PACKAGE_MANAGER == 'bun' }}
       with:
         node-version: ${{ inputs.node-version }}
@@ -146,7 +146,7 @@ runs:
     - name: Restore Astro cache
       if: ${{ inputs.cache == 'true' }}
       id: astro-cache-restore
-      uses: actions/cache/restore@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      uses: actions/cache/restore@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ${{ inputs.path }}/${{ inputs.cache-dir }}
         key: astro-cache-${{ runner.os }}-${{ github.sha }}
@@ -167,7 +167,7 @@ runs:
 
     - name: Save Astro cache
       if: ${{ inputs.cache == 'true' && steps.astro-cache-restore.outputs.cache-hit != 'true' }}
-      uses: actions/cache/save@668228422ae6a00e4ad889ee87cd7109ec5666a7 # v5.0.4
+      uses: actions/cache/save@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
       with:
         path: ${{ inputs.path }}/${{ inputs.cache-dir }}
         key: ${{ steps.astro-cache-restore.outputs.cache-primary-key }}
