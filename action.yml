@@ -32,6 +32,10 @@ inputs:
     description: "Path to the output build directory (relative to 'path' input). Defaults to 'dist'"
     required: false
     default: "dist"
+  artifact-name:
+    description: "Name of the artifact to be created for GitHub Pages deployment. Defaults to 'github-pages'"
+    required: false
+    default: "github-pages"
 
 runs:
   using: composite
@@ -177,3 +181,4 @@ runs:
       with:
         path: "${{ inputs.path }}/${{ inputs.out-dir }}/"
         include-hidden-files: true
+        name: ${{ inputs.artifact-name }}
