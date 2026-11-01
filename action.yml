@@ -51,7 +51,7 @@ runs:
               if [ "$PACKAGE_MANAGER" = "deno" ]; then
                   # The denoland/setup-deno action equivalent of "latest"
                   VERSION="vx.x.x"
-              else
+              elif [ "$PACKAGE_MANAGER" != "npm" ] && [ "$PACKAGE_MANAGER" != "yarn" ]; then
                   VERSION="latest"
               fi
           fi
@@ -69,7 +69,6 @@ runs:
             echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
             echo "LOCKFILE=yarn.lock" >> $GITHUB_ENV
         elif [ $(find "." -maxdepth 1 -name "package-lock.json") ]; then
-            VERSION="latest"
             echo "PACKAGE_MANAGER=npm" >> $GITHUB_ENV
             echo "LOCKFILE=package-lock.json" >> $GITHUB_ENV
         elif [ $(find "." -maxdepth 1 -name "bun.lock") ]; then
@@ -116,6 +115,11 @@ runs:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
         cache-dependency-path: "${{ inputs.path }}/${{ env.LOCKFILE }}"
+
+    - name: Setup Package Manager (npm/yarn)
+      if: ${{ (env.PACKAGE_MANAGER == 'npm' || env.PACKAGE_MANAGER == 'yarn') && env.VERSION != '' }}
+      shell: bash
+      run: npm install -g "$PACKAGE_MANAGER@$VERSION"
 
     - name: Setup Node (Bun)
       uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
