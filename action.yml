@@ -42,6 +42,9 @@ runs:
       env:
         INPUT_PM: ${{ inputs.package-manager }}
       run: |
+        PACKAGE_MANAGER=""
+        VERSION=""
+        echo "PNPM_SETUP=false" >> $GITHUB_ENV
         len=`echo $INPUT_PM | wc -c`
         if [ $len -gt 1 ]; then
           PACKAGE_MANAGER=$(echo "$INPUT_PM" | grep -o '^[^@]*')
@@ -51,20 +54,14 @@ runs:
               if [ "$PACKAGE_MANAGER" = "deno" ]; then
                   # The denoland/setup-deno action equivalent of "latest"
                   VERSION="vx.x.x"
-              else
+              elif [ "$PACKAGE_MANAGER" != "pnpm" ]; then
                   VERSION="latest"
               fi
           fi
           echo "PACKAGE_MANAGER=$PACKAGE_MANAGER" >> $GITHUB_ENV
         elif [ $(find "." -maxdepth 1 -name "pnpm-lock.yaml") ]; then
+            PACKAGE_MANAGER=pnpm
             echo "PACKAGE_MANAGER=pnpm" >> $GITHUB_ENV
-            echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
-            # If packageManager field is not present, use latest version.
-            if ! jq -e '.packageManager' package.json > /dev/null 2>&1; then
-                VERSION="latest"
-                # Annotate this action run to let users know we’re using the default.
-                echo "::warning title=Could not detect PNPM version::No \`packageManager\` field found in \`package.json\`. Using latest PNPM version instead. We recommend specifying \`pnpm@VERSION\` explicitly using the \`packageManager\` field in your \`package.json\`."
-            fi
         elif [ $(find "." -maxdepth 1 -name "yarn.lock") ]; then
             echo "PACKAGE_MANAGER=yarn" >> $GITHUB_ENV
             echo "LOCKFILE=yarn.lock" >> $GITHUB_ENV
@@ -89,13 +86,36 @@ runs:
         Please specify your preferred \"package-manager\" in the action configuration."
             exit 1
         fi
+        if [ "$PACKAGE_MANAGER" = "pnpm" ]; then
+            echo "LOCKFILE=pnpm-lock.yaml" >> $GITHUB_ENV
+            if [ -z "$VERSION" ]; then
+                if jq -e '.devEngines.packageManager.name == "pnpm" and (.devEngines.packageManager.version // "") != ""' package.json > /dev/null 2>&1; then
+                    # Delegate range and lockfile selection to pnpm/setup.
+                    echo "PNPM_SETUP=true" >> $GITHUB_ENV
+                elif ! jq -e '.packageManager' package.json > /dev/null 2>&1; then
+                    VERSION="latest"
+                    echo "::warning title=Could not detect PNPM version::No pnpm version found in \`package.json\`. Using latest PNPM version instead. We recommend specifying \`devEngines.packageManager\` or \`packageManager\` in your \`package.json\`."
+                fi
+            fi
+        fi
         echo "VERSION=$VERSION" >> $GITHUB_ENV
+    # Keep pnpm/action-setup for pnpm 10 and older, which pnpm/setup does not support.
     - name: Setup PNPM
-      if: ${{ env.PACKAGE_MANAGER == 'pnpm' }}
+      if: ${{ env.PACKAGE_MANAGER == 'pnpm' && env.PNPM_SETUP != 'true' }}
       uses: pnpm/action-setup@ea17c68df8912ef543352723c149a84f56e3d413 # v6.1.0
       with:
         version: ${{ env.VERSION }}
         package_json_file: "${{ inputs.path }}/package.json"
+
+    # pnpm/setup requires pnpm 11+ and selects compatible locked versions for manifest ranges.
+    - name: Setup PNPM from lockfile
+      if: ${{ env.PACKAGE_MANAGER == 'pnpm' && env.PNPM_SETUP == 'true' }}
+      uses: pnpm/setup@fa36a5ef7dcdefc3a7cb25655c122e00cf6e636e # v3.1.2
+      with:
+        working-directory: ${{ inputs.path }}
+        # Install Node here; the Setup Node step below is skipped on this path.
+        runtime: node@${{ inputs.node-version }}
+        cache: true
 
     - name: Setup Bun
       if: ${{ env.PACKAGE_MANAGER == 'bun' }}
@@ -111,7 +131,9 @@ runs:
 
     - name: Setup Node
       uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
-      if: ${{ env.PACKAGE_MANAGER != 'bun' && env.PACKAGE_MANAGER != 'deno' }}
+      if: ${{ env.PACKAGE_MANAGER != 'bun' && env.PACKAGE_MANAGER != 'deno' && env.PNPM_SETUP != 'true' }}
+      env:
+        PNPM_CONFIG_PM_ON_FAIL: ${{ startsWith(inputs.package-manager, 'pnpm@') && 'ignore' || env.PNPM_CONFIG_PM_ON_FAIL || env.pnpm_config_pm_on_fail }}
       with:
         node-version: ${{ inputs.node-version }}
         cache: ${{ env.PACKAGE_MANAGER }}
@@ -124,8 +146,12 @@ runs:
         node-version: ${{ inputs.node-version }}
 
     - name: Install
+      if: ${{ env.PNPM_SETUP != 'true' }}
       shell: bash
       working-directory: ${{ inputs.path }}
+      env:
+        # Keep an explicit pnpm version authoritative through install and build.
+        PNPM_CONFIG_PM_ON_FAIL: ${{ startsWith(inputs.package-manager, 'pnpm@') && 'ignore' || env.PNPM_CONFIG_PM_ON_FAIL || env.pnpm_config_pm_on_fail }}
       run: |
         if [ "$PACKAGE_MANAGER" = "deno" ]; then
           # For Deno projects with deno.json, cache dependencies
@@ -157,6 +183,8 @@ runs:
       if: ${{ env.PACKAGE_MANAGER != 'deno' }}
       shell: bash
       working-directory: ${{ inputs.path }}
+      env:
+        PNPM_CONFIG_PM_ON_FAIL: ${{ startsWith(inputs.package-manager, 'pnpm@') && 'ignore' || env.PNPM_CONFIG_PM_ON_FAIL || env.pnpm_config_pm_on_fail }}
       run: ${{ inputs.build-cmd || '$PACKAGE_MANAGER run build' }}
 
     - name: Build (Deno)
